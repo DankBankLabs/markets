@@ -2,6 +2,8 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "@openzeppelin/hardhat-defender";
+import "@nomiclabs/hardhat-etherscan";
 
 import "./tasks/accounts";
 import "./tasks/clean";
@@ -37,6 +39,17 @@ if (!infuraApiKey) {
 
 const defenderApiKey = process.env.DEFENDER_API_KEY;
 const defenderSecret = process.env.DEFENDER_SECRET;
+
+let defenderSettings = {};
+if (defenderApiKey && defenderSecret) {
+  defenderSettings = {
+    apiKey: defenderApiKey,
+    apiSecret: defenderSecret,
+  };
+}
+
+let etherscanKey = process.env.ETHERSCAN_API_KEY;
+const etherscanSettings = { apiKey: etherscanKey };
 
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
   const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
@@ -99,8 +112,10 @@ const config: HardhatUserConfig = {
     target: "ethers-v5",
   },
   defender: {
-    apiKey: defenderApiKey,
-    apiSecret: defenderSecret,
+    ...defenderSettings,
+  },
+  etherscan: {
+    ...etherscanSettings,
   },
 };
 
