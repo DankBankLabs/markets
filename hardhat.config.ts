@@ -35,6 +35,9 @@ if (!infuraApiKey) {
   throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
+const defenderApiKey = process.env.DEFENDER_API_KEY;
+const defenderSecret = process.env.DEFENDER_SECRET;
+
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
   const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
   return {
@@ -94,6 +97,10 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: "typechain",
     target: "ethers-v5",
+  },
+  defender: {
+    apiKey: defenderApiKey,
+    apiSecret: defenderSecret,
   },
 };
 
