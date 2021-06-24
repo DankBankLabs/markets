@@ -45,13 +45,15 @@ const defenderSecret = process.env.DEFENDER_SECRET;
 let defenderSettings = {};
 if (defenderApiKey && defenderSecret) {
     defenderSettings = {
-        apiKey: defenderApiKey,
-        apiSecret: defenderSecret,
+        defender: {
+            apiKey: defenderApiKey,
+            apiSecret: defenderSecret,
+        },
     };
 }
 
 let etherscanKey = process.env.ETHERSCAN_API_KEY;
-const etherscanSettings = { apiKey: etherscanKey };
+const etherscanSettings = { etherscan: { apiKey: etherscanKey } };
 
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
     const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
@@ -117,12 +119,8 @@ const config: HardhatUserConfig = {
         outDir: "typechain",
         target: "ethers-v5",
     },
-    defender: {
-        ...defenderSettings,
-    },
-    etherscan: {
-        ...etherscanSettings,
-    },
+    ...defenderSettings,
+    ...etherscanSettings,
 };
 
 export default config;
