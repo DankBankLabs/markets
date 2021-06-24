@@ -5,7 +5,6 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-defender";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
-import "hardhat-deploy";
 
 import "./tasks/accounts";
 import "./tasks/clean";
@@ -71,10 +70,6 @@ function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig 
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
-    namedAccounts: {
-        deployer: 0, // Do not use this account for testing
-        admin: 1,
-    },
     gasReporter: {
         currency: "USD",
         enabled: process.env.REPORT_GAS ? true : false,
@@ -100,7 +95,7 @@ const config: HardhatUserConfig = {
         tests: "./test",
     },
     solidity: {
-        version: "0.8.5",
+        version: "0.8.2",
         settings: {
             metadata: {
                 // Not including the metadata hash

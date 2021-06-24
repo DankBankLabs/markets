@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.2;
 
-error GreeterError();
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-contract Greeter {
+contract Greeter is Initializable {
     string public greeting;
 
-    constructor(string memory _greeting) {
+    bool public paused;
+
+    function init(string memory _greeting) public initializer {
         greeting = _greeting;
     }
 
@@ -16,9 +18,5 @@ contract Greeter {
 
     function setGreeting(string memory _greeting) public {
         greeting = _greeting;
-    }
-
-    function throwError() external pure {
-        revert GreeterError();
     }
 }
