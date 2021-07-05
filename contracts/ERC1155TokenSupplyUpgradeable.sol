@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "./IERC1155Upgradeable.sol";
-import "./IERC1155ReceiverUpgradeable.sol";
-import "./IERC1155MetadataURIUpgradeable.sol";
-import "./utils/AddressUpgradeable.sol";
-import "./utils/ContextUpgradeable.sol";
-import "./utils/ERC165Upgradeable.sol";
-import "./Initializable.sol";
+import "./OpenZeppelin/IERC1155Upgradeable.sol";
+import "./OpenZeppelin/IERC1155ReceiverUpgradeable.sol";
+import "./OpenZeppelin/IERC1155MetadataURIUpgradeable.sol";
+import "./OpenZeppelin/utils/AddressUpgradeable.sol";
+import "./OpenZeppelin/utils/ContextUpgradeable.sol";
+import "./OpenZeppelin/utils/ERC165Upgradeable.sol";
+import "./OpenZeppelin/Initializable.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -17,7 +17,7 @@ import "./Initializable.sol";
  *
  * _Available since v3.1._
  */
-contract ERC1155Upgradeable is
+contract ERC1155TokenSupplyUpgradeable is
     Initializable,
     ContextUpgradeable,
     ERC165Upgradeable,
@@ -325,7 +325,8 @@ contract ERC1155Upgradeable is
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         for (uint256 i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] += amounts[i];
+            uint256 id = ids[i];
+            _balances[id][to] += amounts[i];
             _tokenSupplies[id] += amounts[i];
         }
 

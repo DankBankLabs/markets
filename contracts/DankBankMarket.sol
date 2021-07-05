@@ -15,48 +15,109 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
 
     // initVirtualEth ignored if not creating the pool from scratch
     function addLiquidity(
-        IERC20 token,
+        address token,
         uint256 inputAmount,
         uint256 minOutputShares,
         uint256 initVirtualEthSupply
     ) external {
         require(
-            token.transferFrom(_msgSender(), address(this), inputAmount),
+            IERC20(token).transferFrom(_msgSender(), address(this), inputAmount),
             "DankBankMarket: token transfer unsuccessful"
         );
 
+        uint256 tokenId = _getTokenId(token);
+
         if (virtualEthPoolSupply[token] == 0) {
             // initial funding
-            _mint(_msgSender(), uint256(token), initVirtualEthSupply);
+            _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
             virtualEthPoolSupply[token] = initVirtualEthSupply;
         } else {
-            uint256 prevPoolBalance = token.balanceOf(address(this)) - inputAmount;
+            uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
             uint256 ethAdded = (inputAmount * _getTotalEthPoolSupply(token)) / prevPoolBalance;
             virtualEthPoolSupply[token] += ethAdded;
 
-            uint256 mintAmount = (inputAmount * tokenSupplies(uint256(token))) / prevPoolBalance;
+            uint256 mintAmount = (inputAmount * tokenSupplies(tokenId)) / prevPoolBalance;
             require(mintAmount >= minOutputShares, "DankBankMarket: output shares less than required.");
-            _mint(_msgSender(), uint256(token), mintAmount);
+            _mint(_msgSender(), tokenId, mintAmount, "");
         }
     }
 
-    function removeLiquidity(IERC20 token, uint256 burnAmount) external {
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / tokenSupplies(uint256(token));
+    function removeLiquidity(address token, uint256 burnAmount) external {
+        uint256 tokenId = _getTokenId(token);
+
+        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / tokenSupplies(tokenId);
         ethPoolSupply[token] -= ethRemoved;
 
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / tokenSupplies(uint256(token));
+        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / tokenSupplies(tokenId);
 
-        _burn(_msgSender(), uint256(token), burnAmount);
+        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / tokenSupplies(tokenId);
 
-        // XXX: _burn must by attempted before transfer to prevent reentrancy
-        (bool success, ) = msg.sender.call.value(ethRemoved)("");
+        // burn will revert if burn amount exceeds balance
+        _burn(_msgSender(), tokenId, burnAmount);
+
+        // XXX: _burn must by attempted before transfers to prevent reentrancy
+        IERC20(token).transfer(_msgSender(), tokensRemoved);
+
+        (bool success, ) = msg.sender.call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
     }
 
-    function buy(address token) external payable {}
+    function buy(address token, uint256 minTokensOut) external payable {
+        uint256 tokensOut = calculateBuyAmount(token, msg.value);
 
-    function _getTotalEthPoolSupply(address token) internal returns (uint256) {
+        ethPoolSupply[token] += msg.value;
+
+        require(tokensOut >= minTokensOut, "DankBankMarket: Insufficient tokens out.");
+        IERC20(token).transfer(_msgSender(), tokensOut);
+    }
+
+    function sell(
+        address token,
+        uint256 tokensIn,
+        uint256 minEthOut
+    ) external {
+        uint256 ethOut = calculateSellAmount(token, tokensIn);
+
+        require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");
+
+        // will revert on underflow so there's no way to take out more than the actually eth supply
+        ethPoolSupply[token] -= ethOut;
+
+        IERC20(token).transferFrom(_msgSender(), address(this), tokensIn);
+
+        (bool success, ) = msg.sender.call{ value: ethOut }("");
+        require(success, "DankBankMarket: Transfer failed.");
+    }
+
+    function calculateBuyAmount(address token, uint256 ethAmount) public view returns (uint256 tokensOut) {
+        uint256 fee = ethAmount / 500;
+        uint256 tokenPool = IERC20(token).balanceOf(address(this));
+        uint256 ethSupply = _getTotalEthPoolSupply(token);
+
+        uint256 invariant = ethSupply * tokenPool;
+
+        uint256 newTokenPool = invariant / ((ethSupply + ethAmount) - fee);
+        tokensOut = tokenPool - newTokenPool;
+    }
+
+    function calculateSellAmount(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
+        uint256 fee = tokensIn / 500;
+
+        uint256 tokenPool = IERC20(token).balanceOf(address(this));
+        uint256 ethPool = _getTotalEthPoolSupply(token);
+        uint256 invariant = ethPool * tokenPool;
+
+        uint256 newTokenPool = tokenPool + tokensIn;
+        uint256 newEthPool = invariant / (newTokenPool - fee);
+        ethOut = ethPool - newEthPool;
+    }
+
+    function _getTotalEthPoolSupply(address token) internal view returns (uint256) {
         return virtualEthPoolSupply[token] + ethPoolSupply[token];
+    }
+
+    function _getTokenId(address token) internal pure returns (uint256) {
+        return uint256(uint160(token));
     }
 }

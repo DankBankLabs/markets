@@ -8,5 +8,7 @@ interface IERC20 {
         uint256 amount
     ) external returns (bool);
 
-    function balanceOf(address account) external returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address recipient, uint256 amount) external returns (bool);
 }
