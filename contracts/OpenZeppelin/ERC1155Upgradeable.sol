@@ -35,8 +35,6 @@ contract ERC1155Upgradeable is
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
-    mapping(uint256 => uint256) public _tokenSupplies;
-
     /**
      * @dev See {_setURI}.
      */
@@ -48,13 +46,6 @@ contract ERC1155Upgradeable is
 
     function __ERC1155_init_unchained(string memory uri_) internal initializer {
         _setURI(uri_);
-    }
-
-    /**
-     * Get the supply of the token
-     */
-    function tokenSupplies(uint256 tokenId) public view returns (uint256) {
-        return _tokenSupplies[tokenId];
     }
 
     /**
@@ -298,7 +289,6 @@ contract ERC1155Upgradeable is
         _balances[id][account] += amount;
         emit TransferSingle(operator, address(0), account, id, amount);
 
-        _tokenSupplies[id] += amount;
         _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, data);
     }
 
@@ -326,7 +316,6 @@ contract ERC1155Upgradeable is
 
         for (uint256 i = 0; i < ids.length; i++) {
             _balances[ids[i]][to] += amounts[i];
-            _tokenSupplies[id] += amounts[i];
         }
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
@@ -355,10 +344,7 @@ contract ERC1155Upgradeable is
 
         uint256 accountBalance = _balances[id][account];
         require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-        unchecked {
-            _balances[id][account] = accountBalance - amount;
-            _tokenSupplies[id] -= amount;
-        }
+        unchecked { _balances[id][account] = accountBalance - amount; }
 
         emit TransferSingle(operator, account, address(0), id, amount);
     }
@@ -388,10 +374,7 @@ contract ERC1155Upgradeable is
 
             uint256 accountBalance = _balances[id][account];
             require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-            unchecked {
-                _balances[id][account] = accountBalance - amount;
-                _tokenSupplies[id] -= amount;
-            }
+            unchecked { _balances[id][account] = accountBalance - amount; }
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);
