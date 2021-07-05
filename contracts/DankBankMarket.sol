@@ -9,6 +9,8 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
     mapping(address => uint256) public virtualEthPoolSupply;
     mapping(address => uint256) public ethPoolSupply;
 
+    uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
+
     function init(string memory uri) public initializer {
         __ERC1155_init(uri);
     }
@@ -91,7 +93,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
     }
 
     function calculateBuyAmount(address token, uint256 ethAmount) public view returns (uint256 tokensOut) {
-        uint256 fee = ethAmount / 500;
+        uint256 fee = ethAmount / FEE_DIVISOR;
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
         uint256 ethSupply = _getTotalEthPoolSupply(token);
 
@@ -102,7 +104,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
     }
 
     function calculateSellAmount(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
-        uint256 fee = tokensIn / 500;
+        uint256 fee = tokensIn / FEE_DIVISOR;
 
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
         uint256 ethPool = _getTotalEthPoolSupply(token);
