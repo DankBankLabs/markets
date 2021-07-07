@@ -2,9 +2,9 @@ import hre from "hardhat";
 import { Artifact } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import { Greeter } from "../typechain/Greeter";
+import { TestERC1155 } from "../typechain";
 import { Signers } from "../types";
-import { shouldBehaveLikeGreeter } from "./Greeter.behavior";
+import { shouldBehaveLikeERC115TokenSupply } from "./ERC1155TokenSupply.behavior";
 
 const { deployContract } = hre.waffle;
 
@@ -16,13 +16,12 @@ describe("Unit tests", function () {
         this.signers.admin = signers[0];
     });
 
-    describe("Greeter", function () {
-        beforeEach(async function () {
-            const greeting: string = "Hello, world!";
-            const greeterArtifact: Artifact = await hre.artifacts.readArtifact("Greeter");
-            this.greeter = <Greeter>await deployContract(this.signers.admin, greeterArtifact, [greeting]);
+    describe("Market", function () {
+        before(async function () {
+            const contractArtifact: Artifact = await hre.artifacts.readArtifact("TestERC1155");
+            this.contract = <TestERC1155>await deployContract(this.signers.admin, contractArtifact, []);
         });
 
-        shouldBehaveLikeGreeter();
+        shouldBehaveLikeERC115TokenSupply();
     });
 });

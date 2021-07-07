@@ -39,7 +39,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
             uint256 ethAdded = (inputAmount * _getTotalEthPoolSupply(token)) / prevPoolBalance;
             virtualEthPoolSupply[token] += ethAdded;
 
-            uint256 mintAmount = (inputAmount * tokenSupplies(tokenId)) / prevPoolBalance;
+            uint256 mintAmount = (inputAmount * tokenSupply(tokenId)) / prevPoolBalance;
             require(mintAmount >= minOutputShares, "DankBankMarket: output shares less than required.");
             _mint(_msgSender(), tokenId, mintAmount, "");
         }
@@ -48,12 +48,12 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
     function removeLiquidity(address token, uint256 burnAmount) external {
         uint256 tokenId = _getTokenId(token);
 
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / tokenSupplies(tokenId);
+        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / tokenSupply(tokenId);
         ethPoolSupply[token] -= ethRemoved;
 
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / tokenSupplies(tokenId);
+        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / tokenSupply(tokenId);
 
-        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / tokenSupplies(tokenId);
+        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / tokenSupply(tokenId);
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);

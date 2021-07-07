@@ -53,7 +53,7 @@ contract ERC1155TokenSupplyUpgradeable is
     /**
      * Get the supply of the token
      */
-    function tokenSupplies(uint256 tokenId) public view returns (uint256) {
+    function tokenSupply(uint256 tokenId) public view returns (uint256) {
         return _tokenSupplies[tokenId];
     }
 
