@@ -1,27 +1,38 @@
-import hre from "hardhat";
+import { waffle, ethers, artifacts } from "hardhat";
 import { Artifact } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import { DankBankMarket } from "../typechain/Greeter";
+import { deploy } from "./helpers";
+import { DankBankMarket, TestERC20 } from "../typechain";
 import { Signers } from "../types";
 import { shouldBehaveLikeMarket } from "./DankBankMarket.behavior";
 
-const { deployContract } = hre.waffle;
+const { deployContract } = waffle;
 
-describe("Unit tests", function () {
+const setup = async (admin: SignerWithAddress) => {
+    const market = await deploy<DankBankMarket>("DankBankMarket", { args: [], connect: admin });
+    await market.init("TestURI");
+    const token = await deploy<TestERC20>("TestERC20", { args: [], connect: admin });
+
+    await token.mint(admin.address, ethers.BigNumber.from(10).pow(18).mul(10000));
+
+    return {
+        market,
+        token
+    };
+};
+
+describe("Market", function () {
     before(async function () {
         this.signers = {} as Signers;
 
-        const signers: SignerWithAddress[] = await hre.ethers.getSigners();
-        this.signers.admin = signers[0];
+        const signers: SignerWithAddress[] = await ethers.getSigners();
+        this.signers.admin = signers[1];
+
+        const deployment = await setup(this.signers.admin);
+        this.market = deployment.market;
+        this.token = deployment.token;
     });
 
-    describe("Market", function () {
-        beforeEach(async function () {
-            const marketArtifact: Artifact = await hre.artifacts.readArtifact("DankBankMarket");
-            this.market = <DankBankMarket>await deployContract(this.signers.admin, marketArtifact, []);
-        });
-
-        shouldBehaveLikeMarket();
-    });
+    shouldBehaveLikeMarket();
 });

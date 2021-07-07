@@ -22,10 +22,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         uint256 minOutputShares,
         uint256 initVirtualEthSupply
     ) external {
-        require(
-            IERC20(token).transferFrom(_msgSender(), address(this), inputAmount),
-            "DankBankMarket: token transfer unsuccessful"
-        );
+        IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = _getTokenId(token);
 
@@ -36,7 +33,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         } else {
             uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
-            uint256 ethAdded = (inputAmount * _getTotalEthPoolSupply(token)) / prevPoolBalance;
+            uint256 ethAdded = (inputAmount * getTotalEthPoolSupply(token)) / prevPoolBalance;
             virtualEthPoolSupply[token] += ethAdded;
 
             uint256 mintAmount = (inputAmount * tokenSupply(tokenId)) / prevPoolBalance;
@@ -92,14 +89,14 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         require(success, "DankBankMarket: Transfer failed.");
     }
 
-    function calculateBuyAmount(address token, uint256 ethAmount) public view returns (uint256 tokensOut) {
-        uint256 fee = ethAmount / FEE_DIVISOR;
+    function calculateBuyAmount(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
+        uint256 fee = ethIn / FEE_DIVISOR;
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
-        uint256 ethSupply = _getTotalEthPoolSupply(token);
+        uint256 ethSupply = getTotalEthPoolSupply(token);
 
         uint256 invariant = ethSupply * tokenPool;
 
-        uint256 newTokenPool = invariant / ((ethSupply + ethAmount) - fee);
+        uint256 newTokenPool = invariant / ((ethSupply + ethIn) - fee);
         tokensOut = tokenPool - newTokenPool;
     }
 
@@ -107,7 +104,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         uint256 fee = tokensIn / FEE_DIVISOR;
 
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
-        uint256 ethPool = _getTotalEthPoolSupply(token);
+        uint256 ethPool = getTotalEthPoolSupply(token);
         uint256 invariant = ethPool * tokenPool;
 
         uint256 newTokenPool = tokenPool + tokensIn;
@@ -115,7 +112,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         ethOut = ethPool - newEthPool;
     }
 
-    function _getTotalEthPoolSupply(address token) internal view returns (uint256) {
+    function getTotalEthPoolSupply(address token) public view returns (uint256) {
         return virtualEthPoolSupply[token] + ethPoolSupply[token];
     }
 

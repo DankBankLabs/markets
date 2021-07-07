@@ -1,10 +1,13 @@
 import { expect } from "chai";
+import { ONE } from "./helpers";
 
-export function shouldBehaveLikeGreeter(): void {
-    it("should return the new greeting once it's changed", async function () {
-        expect(await this.greeter.connect(this.signers.admin).greet()).to.equal("Hello, world!");
-
-        await this.greeter.setGreeting("Hola, mundo!");
-        expect(await this.greeter.connect(this.signers.admin).greet()).to.equal("Hola, mundo!");
+export function shouldBehaveLikeMarket(): void {
+    it("reverts adding liquidity if token is not approved", async function () {
+        await expect(this.market.addLiquidity(
+            this.token.address,
+            ONE,
+            ONE,
+            ONE
+        )).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
     });
 }
