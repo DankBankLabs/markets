@@ -2,9 +2,9 @@ import hre from "hardhat";
 import { Artifact } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import { Greeter } from "../typechain/Greeter";
+import { DankBankMarket } from "../typechain/Greeter";
 import { Signers } from "../types";
-import { shouldBehaveLikeGreeter } from "./Greeter.behavior";
+import { shouldBehaveLikeMarket } from "./DankBankMarket.behavior";
 
 const { deployContract } = hre.waffle;
 
@@ -18,11 +18,10 @@ describe("Unit tests", function () {
 
     describe("Market", function () {
         beforeEach(async function () {
-            const greeting: string = "Hello, world!";
-            const greeterArtifact: Artifact = await hre.artifacts.readArtifact("Greeter");
-            this.greeter = <Greeter>await deployContract(this.signers.admin, greeterArtifact, [greeting]);
+            const marketArtifact: Artifact = await hre.artifacts.readArtifact("DankBankMarket");
+            this.market = <DankBankMarket>await deployContract(this.signers.admin, marketArtifact, []);
         });
 
-        shouldBehaveLikeGreeter();
+        shouldBehaveLikeMarket();
     });
 });
