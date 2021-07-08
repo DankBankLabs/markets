@@ -17,7 +17,7 @@ import "./OpenZeppelin/Initializable.sol";
  *
  * _Available since v3.1._
  */
-contract ERC1155TokenSupplyUpgradeable is
+contract ERC1155LPTokenUpgradeable is
     Initializable,
     ContextUpgradeable,
     ERC165Upgradeable,
@@ -53,7 +53,7 @@ contract ERC1155TokenSupplyUpgradeable is
     /**
      * Get the supply of the token
      */
-    function tokenSupply(uint256 tokenId) public view returns (uint256) {
+    function lpTokenSupply(uint256 tokenId) public view returns (uint256) {
         return _tokenSupplies[tokenId];
     }
 

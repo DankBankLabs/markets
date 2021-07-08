@@ -8,7 +8,7 @@ export function shouldBehaveLikeERC115TokenSupply(): void {
     let otherSupply: BigNumber;
 
     it("token should have no supply initially", async function () {
-        const supply = await this.contract.tokenSupply(tokenId);
+        const supply = await this.contract.lpTokenSupply(tokenId);
         expect(supply.toString()).to.equal("0");
     });
 
@@ -18,7 +18,7 @@ export function shouldBehaveLikeERC115TokenSupply(): void {
         const address = await this.signers.admin.getAddress();
         await this.contract.connect(this.signers.admin).mint(address, tokenId, mintAmount);
 
-        supply = await this.contract.tokenSupply(tokenId);
+        supply = await this.contract.lpTokenSupply(tokenId);
         expect(supply.toString()).to.equal(mintAmount);
     });
 
@@ -29,7 +29,7 @@ export function shouldBehaveLikeERC115TokenSupply(): void {
         await this.contract.connect(this.signers.admin).burn(address, tokenId, burnAmount);
 
         const expectedSupply = supply.sub(burnAmount);
-        supply = await this.contract.tokenSupply(tokenId);
+        supply = await this.contract.lpTokenSupply(tokenId);
         expect(supply.toString()).to.equal(expectedSupply.toString());
     });
 
@@ -40,10 +40,10 @@ export function shouldBehaveLikeERC115TokenSupply(): void {
         await this.contract.connect(this.signers.admin).mintBatch(address, [tokenId, otherTokenId], mintAmounts);
 
         const expectedSupply = supply.add(mintAmounts[0]);
-        supply = await this.contract.tokenSupply(tokenId);
+        supply = await this.contract.lpTokenSupply(tokenId);
         expect(supply.toString()).to.equal(expectedSupply.toString());
 
-        otherSupply = await this.contract.tokenSupply(otherTokenId);
+        otherSupply = await this.contract.lpTokenSupply(otherTokenId);
         expect(otherSupply.toString()).to.equal(mintAmounts[1]);
     });
 
@@ -54,11 +54,11 @@ export function shouldBehaveLikeERC115TokenSupply(): void {
         await this.contract.connect(this.signers.admin).burnBatch(address, [tokenId, otherTokenId], burnAmounts);
 
         const expectedSupply = supply.sub(burnAmounts[0]);
-        supply = await this.contract.tokenSupply(tokenId);
+        supply = await this.contract.lpTokenSupply(tokenId);
         expect(supply.toString()).to.equal(expectedSupply.toString());
 
         const expectedOtherSupply = otherSupply.sub(burnAmounts[1]);
-        otherSupply = await this.contract.tokenSupply(otherTokenId);
+        otherSupply = await this.contract.lpTokenSupply(otherTokenId);
         expect(otherSupply.toString()).to.equal(expectedOtherSupply.toString());
     });
 }

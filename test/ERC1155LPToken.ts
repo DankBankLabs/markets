@@ -4,7 +4,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 
 import { TestERC1155 } from "../typechain";
 import { Signers } from "../types";
-import { shouldBehaveLikeERC115TokenSupply } from "./ERC1155TokenSupply.behavior";
+import { shouldBehaveLikeERC115TokenSupply } from "./ERC1155LPToken.behavior";
 
 const { deployContract } = hre.waffle;
 

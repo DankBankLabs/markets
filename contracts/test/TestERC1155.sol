@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.4;
 
-import "../ERC1155TokenSupplyUpgradeable.sol";
+import "../ERC1155LPTokenUpgradeable.sol";
 
-contract TestERC1155 is ERC1155TokenSupplyUpgradeable {
+contract TestERC1155 is ERC1155LPTokenUpgradeable {
     constructor() {
         __ERC1155_init("irrelevant token uri");
     }
