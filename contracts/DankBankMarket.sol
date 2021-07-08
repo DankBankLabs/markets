@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "./ERC1155TokenSupplyUpgradeable.sol";
+import "./DankBankMarketData.sol";
+import "./ERC1155LPTokenUpgradeable.sol";
 import "./IERC20.sol";
 import "./OpenZeppelin/Initializable.sol";
 
-contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
-    mapping(address => uint256) public virtualEthPoolSupply;
-    mapping(address => uint256) public ethPoolSupply;
-
-    uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
-
+contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
     function init(string memory uri) public initializer {
         __ERC1155_init(uri);
     }
@@ -24,33 +20,37 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
     ) external {
         IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
-        uint256 tokenId = _getTokenId(token);
+        uint256 tokenId = getTokenId(token);
 
         if (virtualEthPoolSupply[token] == 0) {
             // initial funding
             _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
             virtualEthPoolSupply[token] = initVirtualEthSupply;
+
+            emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
         } else {
             uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
             uint256 ethAdded = (inputAmount * getTotalEthPoolSupply(token)) / prevPoolBalance;
             virtualEthPoolSupply[token] += ethAdded;
 
-            uint256 mintAmount = (inputAmount * tokenSupply(tokenId)) / prevPoolBalance;
+            uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
             require(mintAmount >= minOutputShares, "DankBankMarket: output shares less than required.");
             _mint(_msgSender(), tokenId, mintAmount, "");
+
+            emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
         }
     }
 
     function removeLiquidity(address token, uint256 burnAmount) external {
-        uint256 tokenId = _getTokenId(token);
+        uint256 tokenId = getTokenId(token);
 
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / tokenSupply(tokenId);
+        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpTokenSupply(tokenId);
         ethPoolSupply[token] -= ethRemoved;
 
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / tokenSupply(tokenId);
+        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpTokenSupply(tokenId);
 
-        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / tokenSupply(tokenId);
+        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpTokenSupply(tokenId);
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
@@ -60,6 +60,8 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
 
         (bool success, ) = msg.sender.call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
+
+        emit LiquidityRemoved(_msgSender(), token, tokensRemoved, ethRemoved, burnAmount);
     }
 
     function buy(address token, uint256 minTokensOut) external payable {
@@ -69,6 +71,8 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
 
         require(tokensOut >= minTokensOut, "DankBankMarket: Insufficient tokens out.");
         IERC20(token).transfer(_msgSender(), tokensOut);
+
+        emit DankBankBuy(_msgSender(), token, msg.value, tokensOut);
     }
 
     function sell(
@@ -87,6 +91,8 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
 
         (bool success, ) = msg.sender.call{ value: ethOut }("");
         require(success, "DankBankMarket: Transfer failed.");
+
+        emit DankBankSell(_msgSender(), token, ethOut, tokensIn);
     }
 
     function calculateBuyAmount(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
@@ -116,7 +122,7 @@ contract DankBankMarket is Initializable, ERC1155TokenSupplyUpgradeable {
         return virtualEthPoolSupply[token] + ethPoolSupply[token];
     }
 
-    function _getTokenId(address token) internal pure returns (uint256) {
+    function getTokenId(address token) public pure returns (uint256) {
         return uint256(uint160(token));
     }
 }
