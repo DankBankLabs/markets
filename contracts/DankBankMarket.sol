@@ -7,6 +7,8 @@ import "./IERC20.sol";
 import "./OpenZeppelin/Initializable.sol";
 
 contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
+    uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
+
     function init(string memory uri) public initializer {
         __ERC1155_init(uri);
     }
@@ -65,7 +67,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
     }
 
     function buy(address token, uint256 minTokensOut) external payable {
-        uint256 tokensOut = calculateBuyAmount(token, msg.value);
+        uint256 tokensOut = calculateBuyEthOut(token, msg.value);
 
         ethPoolSupply[token] += msg.value;
 
@@ -80,11 +82,11 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 tokensIn,
         uint256 minEthOut
     ) external {
-        uint256 ethOut = calculateSellAmount(token, tokensIn);
+        uint256 ethOut = calculateSellTokensOut(token, tokensIn);
 
         require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");
 
-        // will revert on underflow so there's no way to take out more than the actually eth supply
+        // will revert on underflow so there's no way to take out more than the actually eth supply of this token
         ethPoolSupply[token] -= ethOut;
 
         IERC20(token).transferFrom(_msgSender(), address(this), tokensIn);
@@ -95,7 +97,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit DankBankSell(_msgSender(), token, ethOut, tokensIn);
     }
 
-    function calculateBuyAmount(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
+    function calculateBuyEthOut(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
         uint256 fee = ethIn / FEE_DIVISOR;
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
         uint256 ethSupply = getTotalEthPoolSupply(token);
@@ -106,15 +108,14 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         tokensOut = tokenPool - newTokenPool;
     }
 
-    function calculateSellAmount(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
+    function calculateSellTokensOut(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
         uint256 fee = tokensIn / FEE_DIVISOR;
 
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
         uint256 ethPool = getTotalEthPoolSupply(token);
         uint256 invariant = ethPool * tokenPool;
 
-        uint256 newTokenPool = tokenPool + tokensIn;
-        uint256 newEthPool = invariant / (newTokenPool - fee);
+        uint256 newEthPool = invariant / ((tokenPool + tokensIn) - fee);
         ethOut = ethPool - newEthPool;
     }
 

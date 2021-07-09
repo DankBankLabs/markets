@@ -5,8 +5,6 @@ contract DankBankMarketData {
     mapping(address => uint256) public virtualEthPoolSupply;
     mapping(address => uint256) public ethPoolSupply;
 
-    uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
-
     event LiquidityAdded(
         address indexed funder,
         address token,

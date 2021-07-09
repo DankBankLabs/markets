@@ -28,6 +28,7 @@ describe("Market", function () {
 
         const signers: SignerWithAddress[] = await ethers.getSigners();
         this.signers.admin = signers[1];
+        this.signers.other = signers[2];
 
         const deployment = await setup(this.signers.admin);
         this.market = deployment.market;
