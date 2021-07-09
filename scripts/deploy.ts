@@ -1,11 +1,11 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-    const greeterFactory = await ethers.getContractFactory("Greeter");
+    const marketFactory = await ethers.getContractFactory("DankBankMarket");
 
-    const greeter = await upgrades.deployProxy(greeterFactory, ["Wassup"], { initializer: "init" });
+    const market = await upgrades.deployProxy(marketFactory, ["DankBankMarket does not give a fuck about a uri"], { initializer: "init" });
 
-    console.log({ greeter });
+    console.log({ market });
 }
 
 main()
