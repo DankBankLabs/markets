@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import "./DankBankMarketData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
 import "./IERC20.sol";
-import "./OpenZeppelin/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
     uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
