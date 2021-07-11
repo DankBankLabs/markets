@@ -16,7 +16,7 @@ describe("Unit tests", function () {
         this.signers.admin = signers[0];
     });
 
-    describe("Market", function () {
+    describe("ERC1155", function () {
         before(async function () {
             const contractArtifact: Artifact = await hre.artifacts.readArtifact("TestERC1155");
             this.contract = <TestERC1155>await deployContract(this.signers.admin, contractArtifact, []);

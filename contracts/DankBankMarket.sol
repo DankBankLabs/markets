@@ -19,7 +19,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 inputAmount,
         uint256 minOutputShares,
         uint256 initVirtualEthSupply
-    ) external {
+    ) external payable {
         IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
@@ -29,16 +29,32 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
             _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
             virtualEthPoolSupply[token] = initVirtualEthSupply;
 
+            // refund any eth that was sent
+            if (msg.value > 0) {
+                (bool success, ) = msg.sender.call{ value: msg.value }("");
+                require(success, "DankBankMarket: Transfer failed.");
+            }
+
             emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
         } else {
             uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
-            uint256 ethAdded = (inputAmount * getTotalEthPoolSupply(token)) / prevPoolBalance;
-            virtualEthPoolSupply[token] += ethAdded;
+            uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
+            require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
+            ethPoolSupply[token] += ethAdded;
+
+            uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
+            virtualEthPoolSupply[token] += virtualEthAdded;
 
             uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
             require(mintAmount >= minOutputShares, "DankBankMarket: output shares less than required.");
             _mint(_msgSender(), tokenId, mintAmount, "");
+
+            // refund dust eth if any
+            if (msg.value > ethAdded) {
+                (bool success, ) = msg.sender.call{ value: msg.value - ethAdded }("");
+                require(success, "DankBankMarket: Transfer failed.");
+            }
 
             emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
         }
