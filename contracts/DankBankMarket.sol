@@ -61,13 +61,14 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
     function removeLiquidity(address token, uint256 burnAmount) external {
         uint256 tokenId = getTokenId(token);
+        uint256 lpSupply = lpTokenSupply(tokenId);
 
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpTokenSupply(tokenId);
+        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpSupply;
         ethPoolSupply[token] -= ethRemoved;
 
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpTokenSupply(tokenId);
+        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
 
-        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpTokenSupply(tokenId);
+        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpSupply;
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
