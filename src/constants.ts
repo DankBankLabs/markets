@@ -1,0 +1,2 @@
+export const FEE_MULTIPLIER = 500;
+export const MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;

@@ -7,57 +7,56 @@ import "./IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
-    uint256 public constant FEE_DIVISOR = 500; // 0.2% fee on trades
+    uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
+    uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
     function init(string memory uri) public initializer {
         __ERC1155_init(uri);
     }
 
-    // initVirtualEth ignored if not creating the pool from scratch
-    function addLiquidity(
-        address token,
-        uint256 inputAmount,
-        uint256 minOutputShares,
-        uint256 initVirtualEthSupply
-    ) external payable {
+    function initPool(address token, uint256 inputAmount, uint256 initVirtualEthSupply) external {
+        require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
+
         IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
 
-        if (virtualEthPoolSupply[token] == 0) {
-            // initial funding
-            _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
-            virtualEthPoolSupply[token] = initVirtualEthSupply;
+        _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
+        virtualEthPoolSupply[token] = initVirtualEthSupply;
 
-            // refund any eth that was sent
-            if (msg.value > 0) {
-                (bool success, ) = msg.sender.call{ value: msg.value }("");
-                require(success, "DankBankMarket: Transfer failed.");
-            }
+        emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
+    }
 
-            emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
-        } else {
-            uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
+    // initVirtualEth ignored if not creating the pool from scratch
+    function addLiquidity(
+        address token,
+        uint256 inputAmount
+    ) external payable {
+        require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
 
-            uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
-            require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
-            ethPoolSupply[token] += ethAdded;
+        IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
-            uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
-            virtualEthPoolSupply[token] += virtualEthAdded;
+        uint256 tokenId = getTokenId(token);
 
-            uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
-            require(mintAmount >= minOutputShares, "DankBankMarket: output shares less than required.");
-            _mint(_msgSender(), tokenId, mintAmount, "");
+        uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
-            // refund dust eth if any
-            if (msg.value > ethAdded) {
-                (bool success, ) = msg.sender.call{ value: msg.value - ethAdded }("");
-                require(success, "DankBankMarket: Transfer failed.");
-            }
+        uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
+        require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
+        ethPoolSupply[token] += ethAdded;
 
-            emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
+        uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
+        virtualEthPoolSupply[token] += virtualEthAdded;
+
+        uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
+        _mint(_msgSender(), tokenId, mintAmount, "");
+
+        // refund dust eth if any
+        if (msg.value > ethAdded) {
+            (bool success, ) = msg.sender.call{ value: msg.value - ethAdded }("");
+            require(success, "DankBankMarket: Transfer failed.");
         }
+
+        emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
     }
 
     function removeLiquidity(address token, uint256 burnAmount) external {
@@ -83,7 +82,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
     }
 
     function buy(address token, uint256 minTokensOut) external payable {
-        uint256 tokensOut = calculateBuyEthOut(token, msg.value);
+        uint256 tokensOut = calculateBuyTokensOut(token, msg.value);
 
         ethPoolSupply[token] += msg.value;
 
@@ -98,7 +97,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 tokensIn,
         uint256 minEthOut
     ) external {
-        uint256 ethOut = calculateSellTokensOut(token, tokensIn);
+        uint256 ethOut = calculateSellEthOut(token, tokensIn);
 
         require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");
 
@@ -113,19 +112,31 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit DankBankSell(_msgSender(), token, ethOut, tokensIn);
     }
 
-    function calculateBuyEthOut(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
-        uint256 fee = ethIn / FEE_DIVISOR;
-        uint256 tokenPool = IERC20(token).balanceOf(address(this));
+    function calculateBuyTokensOut(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
+        /**
+        Logic below is a simplified version of:
+
+        uint256 fee = ethIn / FEE_MULTIPLIER;
+
         uint256 ethSupply = getTotalEthPoolSupply(token);
 
         uint256 invariant = ethSupply * tokenPool;
 
         uint256 newTokenPool = invariant / ((ethSupply + ethIn) - fee);
         tokensOut = tokenPool - newTokenPool;
+        */
+
+        uint256 scaledTokenPool = IERC20(token).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
+        uint256 scaledEthPool = getTotalEthPoolSupply(token) * FEE_MULTIPLIER;
+
+        tokensOut = (scaledTokenPool * ethIn) / (scaledEthPool + MULTIPLIER_SUB_ONE * ethIn);
     }
 
-    function calculateSellTokensOut(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
-        uint256 fee = tokensIn / FEE_DIVISOR;
+    function calculateSellEthOut(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
+        /**
+        Logic below is a simplified version of:
+
+        uint256 fee = tokensIn / FEE_MULTIPLIER;
 
         uint256 tokenPool = IERC20(token).balanceOf(address(this));
         uint256 ethPool = getTotalEthPoolSupply(token);
@@ -133,6 +144,12 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         uint256 newEthPool = invariant / ((tokenPool + tokensIn) - fee);
         ethOut = ethPool - newEthPool;
+        */
+
+        uint256 scaledEthPool = getTotalEthPoolSupply(token) * MULTIPLIER_SUB_ONE;
+        uint256 scaledTokenPool = IERC20(token).balanceOf(address(this)) * FEE_MULTIPLIER;
+
+        ethOut = (scaledEthPool * tokensIn) / (scaledTokenPool + MULTIPLIER_SUB_ONE * tokensIn);
     }
 
     function getTotalEthPoolSupply(address token) public view returns (uint256) {

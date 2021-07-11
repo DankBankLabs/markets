@@ -2,7 +2,9 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { constants, utils, BigNumber } from "ethers";
+
 import { ONE } from "./helpers";
+import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut } from "../src";
 
 export function shouldBehaveLikeMarket(): void {
     let expectedTokensOut: BigNumber;
@@ -18,20 +20,18 @@ export function shouldBehaveLikeMarket(): void {
         let expectedVirtualEthSupply: BigNumber;
 
         it("reverts adding liquidity if token is not approved", async function () {
-            await expect(this.market.addLiquidity(
+            await expect(this.market.initPool(
                 this.token.address,
                 ONE,
                 ONE,
-                ONE
             )).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
         });
 
         it("adds liquidity", async function () {
             await this.token.approve(this.market.address, constants.MaxUint256);
 
-            await expect(this.market.addLiquidity(
+            await expect(this.market.initPool(
                 this.token.address,
-                ONE,
                 ONE,
                 ONE,
             )).to.emit(this.market, "LiquidityAdded").withArgs(this.signers.admin.address, this.token.address, ONE, ONE);
@@ -54,16 +54,13 @@ export function shouldBehaveLikeMarket(): void {
         it("calc buy amount is as expected", async function () {
             const ethIn = ONE;
             expectedEthBalance = ethIn;
-            const fee = ONE.div(await this.market.FEE_DIVISOR());
 
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            const invariant = tokenPool.mul(ethPool);
-            const newTokenPool = invariant.div(ethPool.add(ethIn).sub(fee));
-            expectedTokensOut = tokenPool.sub(newTokenPool);
+            expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
 
-            const buyAmount = await this.market.calculateBuyEthOut(this.token.address, ethIn);
+            const buyAmount = await this.market.calculateBuyTokensOut(this.token.address, ethIn);
             expect(buyAmount.toString()).to.equal(expectedTokensOut.toString());
         });
 
@@ -71,15 +68,11 @@ export function shouldBehaveLikeMarket(): void {
 
         it("allows buying tokens", async function () {
             const ethIn = ONE;
-            expectedEthBalance = ethIn;
-            const fee = ONE.div(await this.market.FEE_DIVISOR());
 
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            const invariant = tokenPool.mul(ethPool);
-            const newTokenPool = invariant.div(ethPool.add(ethIn).sub(fee));
-            expectedTokensOut = tokenPool.sub(newTokenPool);
+            expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
 
             tokenBalanceBeforeTrade = await this.token.balanceOf(this.signers.admin.address);
 
@@ -113,15 +106,11 @@ export function shouldBehaveLikeMarket(): void {
 
         it("reverts when minTokenOut is not enough", async function () {
             const ethIn = ONE;
-            expectedEthBalance = ethIn;
-            const fee = ONE.div(await this.market.FEE_DIVISOR());
 
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            const invariant = tokenPool.mul(ethPool);
-            const newTokenPool = invariant.div(ethPool.add(ethIn).sub(fee));
-            const expectedTokensOut = tokenPool.sub(newTokenPool);
+            const expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
 
             await expect(this.market.buy(this.token.address, expectedTokensOut.add(1), {
                 value: ethIn,
@@ -140,7 +129,7 @@ export function shouldBehaveLikeMarket(): void {
             const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
 
             const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = inputAmount.mul(ethPoolSupply).div(poolBalance);
+            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
 
             ratioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(
                 ethPoolSupply
@@ -148,8 +137,6 @@ export function shouldBehaveLikeMarket(): void {
 
             await expect(this.market.addLiquidity(
                 this.token.address,
-                ONE,
-                ONE,
                 ONE,
                 { value: ethToAdd },
             )).to.emit(this.market, "LiquidityAdded").withArgs(
@@ -168,31 +155,10 @@ export function shouldBehaveLikeMarket(): void {
             expect(ratioAfter.toString()).to.equal(ratioBefore.toString());
         });
 
-        it("reverts when minOutputShares is less than desired", async function () {
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
-            const inputAmount = ONE;
-            const poolBalance = await this.token.balanceOf(this.market.address);
-
-            const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = inputAmount.mul(ethPoolSupply).div(poolBalance);
-
-            const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
-
-            await expect(this.market.addLiquidity(
-                this.token.address,
-                ONE,
-                expectedMintAmount.add(1),
-                ONE,
-                { value: ethToAdd },
-            )).to.be.revertedWith("DankBankMarket: output shares less than required.");
-        });
-
         it("reverts when not enough eth is supplied as liquidity", async function () {
             await expect(this.market.addLiquidity(
                 this.token.address,
                 1,
-                1,
-                0
             )).to.be.revertedWith("DankBankMarket: insufficient ETH supplied.");
         });
     });
@@ -200,33 +166,22 @@ export function shouldBehaveLikeMarket(): void {
     describe("sell tokens", function () {
         let expectedEthOut: BigNumber;
         let newEthPool: BigNumber;
+        let tokensIn: BigNumber;
+        let prevEthPool: BigNumber;
 
         it("calc sell amount is as expected", async function () {
-            const tokensIn = expectedTokensOut.div(2);
-            const fee = tokensIn.div(await this.market.FEE_DIVISOR());
+            tokensIn = expectedTokensOut.div(2);
 
             const tokenPool = await this.token.balanceOf(this.market.address);
-            const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
-            const invariant = tokenPool.mul(ethPool);
+            prevEthPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            newEthPool = invariant.div(tokenPool.add(tokensIn).sub(fee));
-            expectedEthOut = ethPool.sub(newEthPool);
+            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, prevEthPool);
 
-            const sellAmount = await this.market.calculateSellTokensOut(this.token.address, tokensIn);
+            const sellAmount = await this.market.calculateSellEthOut(this.token.address, tokensIn);
             expect(sellAmount.toString()).to.equal(expectedEthOut.toString());
         });
 
         it("able to sell tokens", async function () {
-            const tokensIn = expectedTokensOut.div(2);
-            const fee = tokensIn.div(await this.market.FEE_DIVISOR());
-
-            const tokenPool = await this.token.balanceOf(this.market.address);
-            const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
-            const invariant = tokenPool.mul(ethPool);
-
-            newEthPool = invariant.div(tokenPool.add(tokensIn).sub(fee));
-            expectedEthOut = ethPool.sub(newEthPool);
-
             await expect(
                 this.market.sell(this.token.address, tokensIn, expectedEthOut)
             ).to.emit(this.market, "DankBankSell").withArgs(
@@ -238,21 +193,19 @@ export function shouldBehaveLikeMarket(): void {
         });
 
         it("new eth pool is as expected", async function () {
+            const expectedEthPool = prevEthPool.sub(expectedEthOut);
+
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            expect(ethPool.toString()).to.equal(newEthPool.toString());
+            expect(ethPool.toString()).to.equal(expectedEthPool.toString());
         });
 
         it("eth out is as expected", async function () {
             const tokensIn = expectedTokensOut.div(2);
-            const fee = tokensIn.div(await this.market.FEE_DIVISOR());
-
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
-            const invariant = tokenPool.mul(ethPool);
 
-            newEthPool = invariant.div(tokenPool.add(tokensIn).sub(fee));
-            expectedEthOut = ethPool.sub(newEthPool);
+            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
 
             const ethBefore = await ethers.provider.getBalance(this.signers.admin.address);
 
