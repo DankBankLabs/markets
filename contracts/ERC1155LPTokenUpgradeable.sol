@@ -8,9 +8,12 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155Met
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-// import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
+ * copied from https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/37a95ee069078e38dffe193634665304d8f37f85/contracts/token/ERC1155/ERC1155.sol
+ * and add a token supply to each token;
+ *
  * @dev Implementation of the basic standard multi-token.
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
