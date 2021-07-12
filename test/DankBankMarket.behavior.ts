@@ -291,7 +291,7 @@ export function shouldBehaveLikeMarket(): void {
             ethRatioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved)
+                this.market.removeLiquidity(this.token.address, burnAmount)
             ).to.emit(this.market, "LiquidityRemoved").withArgs(
                 this.signers.admin.address,
                 this.token.address,
@@ -337,35 +337,19 @@ export function shouldBehaveLikeMarket(): void {
             ).to.be.revertedWith("panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)");
         });
 
-        let burnAmount: BigNumber;
-        let ethRemoved: BigNumber;
-        let tokensRemoved: BigNumber;
-
-        it("reverts when less than minEthOut is given", async function () {
-            burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
+        it("able to remove rest of liquidity", async function () {
+            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
             const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
 
-            ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
-            tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
+            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
 
-            await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved.add(1))
-            ).to.be.revertedWith("DankBankMarket: insufficient ETH out.");
-        });
-
-        it("reverts when less than minTokenOut is given", async function () {
-            await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved.add(1), ethRemoved)
-            ).to.be.revertedWith("DankBankMarket: insufficient tokens out.");
-        });
-
-        it("able to remove rest of liquidity", async function () {
             const tokenBalanceBefore = await this.token.balanceOf(this.signers.admin.address);
 
             expectedTokenBalanceAfter = tokenBalanceBefore.add(tokensRemoved);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved)
+                this.market.removeLiquidity(this.token.address, burnAmount)
             ).to.emit(this.market, "LiquidityRemoved").withArgs(
                 this.signers.admin.address,
                 this.token.address,
