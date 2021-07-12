@@ -27,6 +27,22 @@ export function shouldBehaveLikeMarket(): void {
             )).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
         });
 
+        it("reverts if input amount is 0", async function () {
+            await expect(this.market.initPool(
+                this.token.address,
+                0,
+                ONE,
+            )).to.be.revertedWith("DankBankMarket: initial pool amounts must be greater than 0.");
+        });
+
+        it("reverts if initial virtual eth supply is 0", async function () {
+            await expect(this.market.initPool(
+                this.token.address,
+                ONE,
+                0,
+            )).to.be.revertedWith("DankBankMarket: initial pool amounts must be greater than 0.");
+        });
+
         it("adds liquidity", async function () {
             await this.token.approve(this.market.address, constants.MaxUint256);
 
@@ -47,6 +63,14 @@ export function shouldBehaveLikeMarket(): void {
             const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(this.token.address);
 
             expect(virtualEthPoolSupply.toString()).to.equal(expectedVirtualEthSupply.toString());
+        });
+
+        it("reverts if pool is already initialized", async function () {
+            await expect(this.market.initPool(
+                this.token.address,
+                ONE,
+                ONE
+            )).to.be.revertedWith("DankBankMarket: pool already initialized");
         });
     });
 
@@ -227,7 +251,7 @@ export function shouldBehaveLikeMarket(): void {
 
             await expect(
                 this.market.sell(this.token.address, userBalance, 0)
-            ).to.be.revertedWith("reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)");
+            ).to.be.revertedWith("DankBankMarket: Market has insufficient liquidity for the trade.");
         });
 
         it("unable to sell more tokens than a user has", async function () {

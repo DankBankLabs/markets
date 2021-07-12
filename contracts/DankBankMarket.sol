@@ -16,6 +16,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
     function initPool(address token, uint256 inputAmount, uint256 initVirtualEthSupply) external {
         require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
+        require(inputAmount > 0 && initVirtualEthSupply > 0, "DankBankMarket: initial pool amounts must be greater than 0.");
 
         IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
 
@@ -27,7 +28,6 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
     }
 
-    // initVirtualEth ignored if not creating the pool from scratch
     function addLiquidity(
         address token,
         uint256 inputAmount
@@ -102,8 +102,10 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");
 
-        // will revert on underflow so there's no way to take out more than the actually eth supply of this token
-        ethPoolSupply[token] -= ethOut;
+        require(ethPoolSupply[token] >= ethOut, "DankBankMarket: Market has insufficient liquidity for the trade.");
+        unchecked {
+            ethPoolSupply[token] -= ethOut;
+        }
 
         IERC20(token).transferFrom(_msgSender(), address(this), tokensIn);
 
