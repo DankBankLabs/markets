@@ -59,16 +59,18 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
     }
 
-    function removeLiquidity(address token, uint256 burnAmount) external {
+    function removeLiquidity(address token, uint256 burnAmount, uint256 minTokensOut, uint256 minEthOut) external {
         uint256 tokenId = getTokenId(token);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
         uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpSupply;
         ethPoolSupply[token] -= ethRemoved;
+        require(ethRemove >= minEthOut, "DankBankMarket: insufficient ETH out.");
 
         virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
 
         uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpSupply;
+        require(tokensRemoved >= minTokensOut, "DankBankMarket: insufficient tokens out.");
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
