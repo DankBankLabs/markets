@@ -1,11 +1,7 @@
 {
-    "name": "@paulrberg/solidity-template",
-    "description": "Setup for writing Solidity smart contracts",
+    "name": "dankbank-markets",
+    "description": "The dankest of markets",
     "version": "1.0.0",
-    "author": {
-        "name": "Paul Razvan Berg",
-        "url": "https://paulrberg.com"
-    },
     "devDependencies": {
         "@codechecks/client": "^0.1.10",
         "@commitlint/cli": "^12.1.4",
@@ -36,7 +32,6 @@
         "eslint": "^7.27.0",
         "eslint-config-prettier": "^8.3.0",
         "ethereum-waffle": "^3.3.0",
-        "ethers": "^5.2.0",
         "fs-extra": "^10.0.0",
         "hardhat": "^2.3.3",
         "hardhat-gas-reporter": "^1.0.4",
@@ -55,8 +50,10 @@
         "typescript": "~4.2.4"
     },
     "files": [
-        "/contracts"
+        "/dist"
     ],
+    "main": "dist/index.js",
+    "types": "index.d.ts",
     "keywords": [
         "blockchain",
         "ethereum",
@@ -64,8 +61,7 @@
         "smart-contracts",
         "solidity"
     ],
-    "license": "WTFPL",
-    "private": true,
+    "license": "MIT",
     "resolutions": {
         "@ethersproject/wallet": "^5.2.0"
     },
@@ -80,14 +76,18 @@
         "lint": "yarn run lint:sol && yarn run lint:ts && yarn run prettier:check",
         "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
         "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
-        "postinstall": "husky install",
         "prettier": "prettier --config ./.prettierrc --write \"**/*.{js,json,md,sol,ts}\"",
         "prettier:check": "prettier --check --config ./.prettierrc \"**/*.{js,json,md,sol,ts}\"",
         "test": "hardhat test",
-        "typechain": "hardhat typechain"
+        "typechain": "hardhat typechain",
+        "build": "tsc --project ./tsconfig.production.json",
+        "clean:ts": "rimraf dist",
+        "prebuild": "yarn clean:ts",
+        "prepack": "yarn build"
     },
     "dependencies": {
         "@openzeppelin/contracts": "^4.2.0",
-        "@openzeppelin/contracts-upgradeable": "^4.2.0"
+        "@openzeppelin/contracts-upgradeable": "^4.2.0",
+        "ethers": "^5.4.1"
     }
 }
