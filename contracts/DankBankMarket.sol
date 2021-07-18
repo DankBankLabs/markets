@@ -55,23 +55,25 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         // refund dust eth if any
         if (msg.value > ethAdded) {
-            (bool success, ) = msg.sender.call{ value: msg.value - ethAdded }("");
+            (bool success, ) = _msgSender().call{ value: msg.value - ethAdded }("");
             require(success, "DankBankMarket: Transfer failed.");
         }
 
         emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
     }
 
-    function removeLiquidity(address token, uint256 burnAmount) external {
+    function removeLiquidity(address token, uint256 burnAmount, uint256 minTokens, uint256 minEth) external {
         uint256 tokenId = getTokenId(token);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
         uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpSupply;
         ethPoolSupply[token] -= ethRemoved;
+        require(ethRemoved >= minEth, "DankBankMarket: ETH out is less than minimum ETH specified");
 
         virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
 
         uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpSupply;
+        require(tokensRemoved >= minTokens, "DankBankMarket: Token out is less than minimum specified");
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
@@ -79,7 +81,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         // XXX: _burn must by attempted before transfers to prevent reentrancy
         IERC20(token).safeTransfer(_msgSender(), tokensRemoved);
 
-        (bool success, ) = msg.sender.call{ value: ethRemoved }("");
+        (bool success, ) = _msgSender().call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
 
         emit LiquidityRemoved(_msgSender(), token, tokensRemoved, ethRemoved, burnAmount);
@@ -112,7 +114,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         IERC20(token).safeTransferFrom(_msgSender(), address(this), tokensIn);
 
-        (bool success, ) = msg.sender.call{ value: ethOut }("");
+        (bool success, ) = _msgSender().call{ value: ethOut }("");
         require(success, "DankBankMarket: Transfer failed.");
 
         emit DankBankSell(_msgSender(), token, ethOut, tokensIn);

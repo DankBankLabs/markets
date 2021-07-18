@@ -291,7 +291,7 @@ export function shouldBehaveLikeMarket(): void {
             ethRatioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount)
+                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved)
             ).to.emit(this.market, "LiquidityRemoved").withArgs(
                 this.signers.admin.address,
                 this.token.address,
@@ -327,14 +327,48 @@ export function shouldBehaveLikeMarket(): void {
             const signer = this.signers.other;
 
             await expect(
-                this.market.connect(signer).removeLiquidity(this.token.address, await this.market.lpTokenSupply(this.token.address))
+                this.market.connect(signer).removeLiquidity(
+                    this.token.address,
+                    await this.market.lpTokenSupply(this.token.address),
+                    0,
+                    0,
+                )
             ).to.be.revertedWith("ERC1155: burn amount exceeds balance");
         });
 
         it("reverts trying to burn more tokens than in pool", async function () {
             await expect(
-                this.market.removeLiquidity(this.token.address, (await this.market.lpTokenSupply(this.token.address)).add(1))
+                this.market.removeLiquidity(
+                    this.token.address,
+                    (await this.market.lpTokenSupply(this.token.address)).add(1),
+                    0,
+                    0,
+                )
             ).to.be.revertedWith("panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)");
+        });
+
+        it("reverts when receiving less tokens than desired", async function () {
+            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+
+            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
+            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+
+            await expect(
+                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved.add(1), ethRemoved)
+            ).to.be.revertedWith("DankBankMarket: Token out is less than minimum specified")
+        });
+
+        it("reverts when receiving less eth than desired", async function () {
+            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+
+            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
+            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+
+            await expect(
+                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved.add(1))
+            ).to.be.revertedWith("DankBankMarket: ETH out is less than minimum ETH specified")
         });
 
         it("able to remove rest of liquidity", async function () {
@@ -349,7 +383,7 @@ export function shouldBehaveLikeMarket(): void {
             expectedTokenBalanceAfter = tokenBalanceBefore.add(tokensRemoved);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount)
+                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved)
             ).to.emit(this.market, "LiquidityRemoved").withArgs(
                 this.signers.admin.address,
                 this.token.address,
