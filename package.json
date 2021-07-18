@@ -1,5 +1,5 @@
 {
-    "name": "dankbank-markets",
+    "name": "dankbank-market-sdk",
     "description": "The dankest of markets",
     "version": "1.0.0",
     "devDependencies": {
