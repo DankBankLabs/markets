@@ -3,10 +3,13 @@ pragma solidity 0.8.4;
 
 import "./DankBankMarketData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
-import "./IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
+    using SafeERC20 for IERC20;
+
     uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
     uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
@@ -18,7 +21,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
         require(inputAmount > 0 && initVirtualEthSupply > 0, "DankBankMarket: initial pool amounts must be greater than 0.");
 
-        IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
+        IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
 
@@ -34,7 +37,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
     ) external payable {
         require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
 
-        IERC20(token).transferFrom(_msgSender(), address(this), inputAmount);
+        IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
 
@@ -74,7 +77,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         _burn(_msgSender(), tokenId, burnAmount);
 
         // XXX: _burn must by attempted before transfers to prevent reentrancy
-        IERC20(token).transfer(_msgSender(), tokensRemoved);
+        IERC20(token).safeTransfer(_msgSender(), tokensRemoved);
 
         (bool success, ) = msg.sender.call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
@@ -88,7 +91,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         ethPoolSupply[token] += msg.value;
 
         require(tokensOut >= minTokensOut, "DankBankMarket: Insufficient tokens out.");
-        IERC20(token).transfer(_msgSender(), tokensOut);
+        IERC20(token).safeTransfer(_msgSender(), tokensOut);
 
         emit DankBankBuy(_msgSender(), token, msg.value, tokensOut);
     }
@@ -107,7 +110,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
             ethPoolSupply[token] -= ethOut;
         }
 
-        IERC20(token).transferFrom(_msgSender(), address(this), tokensIn);
+        IERC20(token).safeTransferFrom(_msgSender(), address(this), tokensIn);
 
         (bool success, ) = msg.sender.call{ value: ethOut }("");
         require(success, "DankBankMarket: Transfer failed.");
