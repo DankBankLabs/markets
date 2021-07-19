@@ -162,6 +162,7 @@ export function shouldBehaveLikeMarket(): void {
             await expect(this.market.addLiquidity(
                 this.token.address,
                 ONE,
+                ethToAdd,
                 { value: ethToAdd },
             )).to.emit(this.market, "LiquidityAdded").withArgs(
                 this.signers.admin.address,
@@ -183,7 +184,23 @@ export function shouldBehaveLikeMarket(): void {
             await expect(this.market.addLiquidity(
                 this.token.address,
                 1,
+                0,
             )).to.be.revertedWith("DankBankMarket: insufficient ETH supplied.");
+        });
+
+        it("reverts when less than minEthAdded is added", async function () {
+            const inputAmount = ONE;
+            const poolBalance = await this.token.balanceOf(this.market.address);
+
+            const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
+            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
+
+            await expect(this.market.addLiquidity(
+                this.token.address,
+                1,
+                ethToAdd.add(1),
+                { value: ethToAdd },
+            )).to.be.revertedWith("DankBankMarket: ETH supplied less than minimum required.");
         });
     });
 

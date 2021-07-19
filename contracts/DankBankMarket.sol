@@ -33,7 +33,8 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
     function addLiquidity(
         address token,
-        uint256 inputAmount
+        uint256 inputAmount,
+        uint256 minEthAdded
     ) external payable {
         require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
 
@@ -44,7 +45,11 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
 
         uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
+
+        // ensure adding liquidity in specific price range
         require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
+        require(ethAdded >= minEthAdded, "DankBankMarket: ETH supplied less than minimum required.");
+
         ethPoolSupply[token] += ethAdded;
 
         uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
