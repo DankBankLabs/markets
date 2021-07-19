@@ -368,6 +368,115 @@
           }
         }
       }
+    },
+    "2382ba7a3c50a99feae3fd05fb1f1eb74dc07a4853eb6d25b102397755fdcb8d": {
+      "address": "0xC1E1e0250A6377A648bCEdC0AEDB562278d13B0C",
+      "txHash": "0x9b2930e5cea6ffd8b79f0de8101b4fb6bc1ff5dce0c85fca03e2238ffa0a3804",
+      "layout": {
+        "storage": [
+          {
+            "contract": "DankBankMarketData",
+            "label": "virtualEthPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketData.sol:5"
+          },
+          {
+            "contract": "DankBankMarketData",
+            "label": "ethPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketData.sol:6"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:35"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:33"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_uri",
+            "type": "t_string_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:39"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_tokenSupplies",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:41"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)47_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:486"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_array(t_uint256)47_storage": {
+            "label": "uint256[47]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
     }
   }
 }
