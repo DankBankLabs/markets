@@ -1,7 +1,7 @@
 {
     "name": "dankbank-market-sdk",
     "description": "The dankest of markets",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "devDependencies": {
         "@codechecks/client": "^0.1.10",
         "@commitlint/cli": "^12.1.4",
@@ -53,7 +53,7 @@
         "/dist"
     ],
     "main": "dist/index.js",
-    "types": "index.d.ts",
+    "types": "dist/index.d.ts",
     "keywords": [
         "blockchain",
         "ethereum",
