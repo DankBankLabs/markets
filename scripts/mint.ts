@@ -1,6 +1,8 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, constants, Contract } from "ethers";
 import { ethers } from "hardhat";
-import NFT_VAULT from "../abi/ERC721VaultFactory.json";
+import { TASK_COMPILE_SOLIDITY_COMPILE } from "hardhat/builtin-tasks/task-names";
+import NFT_VAULT_ABI from "../abi/ERC721VaultFactory.json";
+import DANK_MARKET_ABI from "../abi/DankMarket.json";
 import { NFT_VAULT_CONTRACT_ADDRESS } from "../src/constants";
 
 const NFT_NAME = "Nft Test";
@@ -14,10 +16,11 @@ async function main() {
 
     const Erc721Mock = await ethers.getContractFactory("ERC721Mock");
     const erc721Mock = await Erc721Mock.deploy(NFT_NAME, NFT_SYMBOL);
+    const market = await new Contract(MARKET_CONTRACT_ADDRESS, DANK_MARKET_ABI, signer);
 
     const tokenAddress = erc721Mock.address;
     console.debug("Erc721 deployed to:", tokenAddress);
-    const fractional = new Contract(NFT_VAULT_CONTRACT_ADDRESS, NFT_VAULT, signer);
+    const fractional = new Contract(NFT_VAULT_CONTRACT_ADDRESS, NFT_VAULT_ABI, signer);
 
     const tokenId = BigNumber.from(Math.floor(Math.random() * 10));
 
@@ -28,7 +31,16 @@ async function main() {
 
     const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, tokenAddress, tokenId, SUPPLY, LIST_PRICE, FEE);
     const receipt = await response.wait();
-    console.debug({ receipt });
+
+    const mintEvent = receipt.events.find((event: any) => "event" in event && event?.event === "Mint");
+    const newVaultAddress = mintEvent.args?.[3];
+
+    // const tokenVault = new Contract(newVaultAddress, VAULT_ABI, signer)
+
+    const approveToMarketTx = await erc721Mock.approve(market.address, constants.MaxUint256);
+    await approveToMarketTx.wait();
+
+    await market.init;
 }
 
 main()
