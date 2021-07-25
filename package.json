@@ -23,6 +23,7 @@
         "@types/fs-extra": "^9.0.11",
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.6.1",
+        "@types/uuid": "^8.3.1",
         "@typescript-eslint/eslint-plugin": "^4.25.0",
         "@typescript-eslint/parser": "^4.25.0",
         "chai": "^4.3.4",
@@ -47,7 +48,8 @@
         "ts-generator": "^0.1.1",
         "ts-node": "^10.0.0",
         "typechain": "^5.0.0",
-        "typescript": "~4.2.4"
+        "typescript": "~4.2.4",
+        "uuid": "^8.3.2"
     },
     "files": [
         "/dist"
@@ -73,6 +75,7 @@
         "deploy": "hardhat run scripts/deploy.ts",
         "deploy:network": "hardhat run scripts/deploy.ts --network",
         "upgrade-contracts": "hardhat run scripts/upgrade.ts",
+        "mint:network": "hardhat run scripts/mint.ts --network",
         "lint": "yarn run lint:sol && yarn run lint:ts && yarn run prettier:check",
         "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
         "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
