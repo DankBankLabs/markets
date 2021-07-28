@@ -1,18 +1,20 @@
 import { BigNumber, constants, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { TASK_COMPILE_SOLIDITY_COMPILE } from "hardhat/builtin-tasks/task-names";
-import NFT_VAULT_ABI from "../abi/ERC721VaultFactory.json";
+import VAULT_FACTORY_ABI from "../abi/ERC721VaultFactory.json";
 import DANK_MARKET_ABI from "../abi/DankMarket.json";
 import ERC20_ABI from "../abi/Erc20.json";
-import { MARKET_CONTRACT_ADDRESS, NFT_VAULT_CONTRACT_ADDRESS } from "../src/constants";
 import { ONE } from "../test/helpers";
 import { calculateBuyTokensOut, calculateSellEthOut } from "../src";
 
+export const VAULT_FACTORY_ADDRESS = "0x872B1cfd9F3D97AEbC75C127F1C254623c2bD741";
+export const MARKET_CONTRACT_ADDRESS = "0xe0424eCb102610348DD3e1F1bB59748E7e288196";
+
 const NFT_NAME = "Nft Test";
 const NFT_SYMBOL = "TNT";
-const SUPPLY = "1000000000000000000000";
-const LIST_PRICE = "100000000000000000";
-const FEE = "10";
+const SUPPLY = BigNumber.from(10).pow(18).mul(100000); // 100,000 tokens
+const LIST_PRICE = BigNumber.from(10).pow(18); // list for 1 ETH
+const FEE = "10"; // 1% fee
 
 async function buyTokens(fractionalizedToken: Contract, market: Contract) {
     const tokenPool = await fractionalizedToken.balanceOf(market.address);
@@ -37,7 +39,7 @@ async function main() {
 
     const tokenAddress = erc721Mock.address;
     console.debug("Erc721 deployed to:", tokenAddress);
-    const fractional = new Contract(NFT_VAULT_CONTRACT_ADDRESS, NFT_VAULT_ABI, signer);
+    const fractional = new Contract(VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI, signer);
 
     const tokenId = BigNumber.from(Math.floor(Math.random() * 10));
 
@@ -70,8 +72,8 @@ async function main() {
     await buyTx.wait();
     console.debug(`Bought one ${NFT_SYMBOL} token`);
 
-    await sellTokens(ONE, fractionalizedToken, market);
-    console.debug(`Sold one ${NFT_SYMBOL} token`);
+    await sellTokens(ONE.div(10), fractionalizedToken, market);
+    console.debug(`Sold 0.1 ${NFT_SYMBOL} token`);
 }
 
 main()

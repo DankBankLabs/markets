@@ -25,6 +25,7 @@ const chainIds = {
     mainnet: 1,
     rinkeby: 4,
     ropsten: 3,
+    localhost: 31337,
 };
 
 // Ensure that we have all the environment variables we need.
@@ -51,11 +52,13 @@ if (defenderApiKey && defenderSecret) {
     };
 }
 
-let etherscanKey = process.env.ETHERSCAN_API_KEY;
+const etherscanKey = process.env.ETHERSCAN_API_KEY;
 const etherscanSettings = { etherscan: { apiKey: etherscanKey } };
 
-function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
-    const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig {
+    let url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+
+    if (network === "localhost") url = "http://localhost:8545";
     return {
         accounts: {
             count: 10,
@@ -83,10 +86,12 @@ const config: HardhatUserConfig = {
             },
             chainId: chainIds.hardhat,
         },
-        goerli: createTestnetConfig("goerli"),
-        kovan: createTestnetConfig("kovan"),
-        rinkeby: createTestnetConfig("rinkeby"),
-        ropsten: createTestnetConfig("ropsten"),
+        localhost: createNetworkConfig("localhost"),
+        goerli: createNetworkConfig("goerli"),
+        kovan: createNetworkConfig("kovan"),
+        rinkeby: createNetworkConfig("rinkeby"),
+        ropsten: createNetworkConfig("ropsten"),
+        mainnet: createNetworkConfig("mainnet"),
     },
     paths: {
         artifacts: "./artifacts",

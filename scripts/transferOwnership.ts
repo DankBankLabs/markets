@@ -1,7 +1,7 @@
 import { upgrades } from "hardhat";
 
 async function main() {
-    const gnosisSafe = "0x24278E26B06bd611B657b3B8098134A76241C1e5";
+    const gnosisSafe = "0x25a12B52D20db5155Dfa87daF86caD7171075039";
 
     console.log("Transferring ownership of ProxyAdmin...");
     // The owner of the ProxyAdmin can upgrade our contracts
