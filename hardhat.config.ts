@@ -91,7 +91,10 @@ const config: HardhatUserConfig = {
             },
             chainId: chainIds.hardhat,
         },
-        localhost: createNetworkConfig("localhost"),
+        localhost: {
+            ...createNetworkConfig("localhost"),
+            saveDeployments: false,
+        },
         goerli: createNetworkConfig("goerli"),
         kovan: createNetworkConfig("kovan"),
         rinkeby: createNetworkConfig("rinkeby"),
