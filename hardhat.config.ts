@@ -5,6 +5,7 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-defender";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
+import "hardhat-deploy";
 
 import "./tasks/accounts";
 import "./tasks/clean";
@@ -73,6 +74,10 @@ function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig 
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
+    namedAccounts: {
+        deployer: 0, // Do not use this account for testing
+        admin: 1,
+    },
     gasReporter: {
         currency: "USD",
         enabled: process.env.REPORT_GAS ? true : false,

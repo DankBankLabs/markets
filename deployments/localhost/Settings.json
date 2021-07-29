@@ -1,0 +1,732 @@
+{
+  "address": "0x4f19bbcb2D547247516d2a468Bf82f54958A06fe",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateCuratorFee",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_old",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_new",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateFeeReceiver",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateGovernanceFee",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMaxAuctionLength",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMaxReserveFactor",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMinAuctionLength",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMinBidIncrease",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMinReserveFactor",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_old",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_new",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMinVotePercentage",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "feeReceiver",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governanceFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxAuctionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxCuratorFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxGovFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxMaxAuctionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxMinBidIncrease",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxReserveFactor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minAuctionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minBidIncrease",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minMinAuctionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minMinBidIncrease",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minReserveFactor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minVotePercentage",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_receiver",
+          "type": "address"
+        }
+      ],
+      "name": "setFeeReceiver",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setGovernanceFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_length",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxAuctionLength",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxCuratorFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_factor",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxReserveFactor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_length",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinAuctionLength",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_min",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinBidIncrease",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_factor",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinReserveFactor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_min",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinVotePercentage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x57b2d54239ed768961a2140da14fa7b3688ca2af917530c3a3797032a55842af",
+  "receipt": {
+    "to": null,
+    "from": "0x781d31b302D8D9B834347bfcafD8e1e1dA470DfF",
+    "contractAddress": "0x4f19bbcb2D547247516d2a468Bf82f54958A06fe",
+    "transactionIndex": 0,
+    "gasUsed": "1031767",
+    "logsBloom": "0x00000000000000000000000000000000000000000800000000800000000000000000000000000000000000000000000000000000000000000080004000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000000000000000800000008000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000100000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8e1765a36a9011eb6cb09fbf70ce4feacd1d0ef525540f8e3c20611bf90a35b2",
+    "transactionHash": "0x57b2d54239ed768961a2140da14fa7b3688ca2af917530c3a3797032a55842af",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 1,
+        "transactionHash": "0x57b2d54239ed768961a2140da14fa7b3688ca2af917530c3a3797032a55842af",
+        "address": "0x4f19bbcb2D547247516d2a468Bf82f54958A06fe",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000781d31b302d8d9b834347bfcafd8e1e1da470dff"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x8e1765a36a9011eb6cb09fbf70ce4feacd1d0ef525540f8e3c20611bf90a35b2"
+      }
+    ],
+    "blockNumber": 1,
+    "cumulativeGasUsed": "1031767",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "2565cdff2c995c7bb0ad1ba03ee1ee64",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateCuratorFee\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_old\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_new\",\"type\":\"address\"}],\"name\":\"UpdateFeeReceiver\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateGovernanceFee\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMaxAuctionLength\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMaxReserveFactor\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMinAuctionLength\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMinBidIncrease\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMinReserveFactor\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_old\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_new\",\"type\":\"uint256\"}],\"name\":\"UpdateMinVotePercentage\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"feeReceiver\",\"outputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governanceFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxAuctionLength\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxCuratorFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxGovFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxMaxAuctionLength\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxMinBidIncrease\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxReserveFactor\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minAuctionLength\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minBidIncrease\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minMinAuctionLength\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minMinBidIncrease\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minReserveFactor\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minVotePercentage\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"_receiver\",\"type\":\"address\"}],\"name\":\"setFeeReceiver\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_fee\",\"type\":\"uint256\"}],\"name\":\"setGovernanceFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_length\",\"type\":\"uint256\"}],\"name\":\"setMaxAuctionLength\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_fee\",\"type\":\"uint256\"}],\"name\":\"setMaxCuratorFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_factor\",\"type\":\"uint256\"}],\"name\":\"setMaxReserveFactor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_length\",\"type\":\"uint256\"}],\"name\":\"setMinAuctionLength\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_min\",\"type\":\"uint256\"}],\"name\":\"setMinBidIncrease\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_factor\",\"type\":\"uint256\"}],\"name\":\"setMinReserveFactor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_min\",\"type\":\"uint256\"}],\"name\":\"setMinVotePercentage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"feeReceiver()\":{\"notice\":\"the address who receives auction fees\"},\"governanceFee()\":{\"notice\":\"governance fee max\"},\"maxAuctionLength()\":{\"notice\":\"the maximum auction length\"},\"maxCuratorFee()\":{\"notice\":\"max curator fee\"},\"maxGovFee()\":{\"notice\":\"10% fee is max\"},\"maxMaxAuctionLength()\":{\"notice\":\"the longest an auction can ever be\"},\"maxMinBidIncrease()\":{\"notice\":\"10% bid increase is max \"},\"maxReserveFactor()\":{\"notice\":\"the max % increase over the initial \"},\"minAuctionLength()\":{\"notice\":\"the minimum auction length\"},\"minBidIncrease()\":{\"notice\":\"the % bid increase required for a new bid\"},\"minMinAuctionLength()\":{\"notice\":\"the shortest an auction can ever be\"},\"minMinBidIncrease()\":{\"notice\":\"1% bid increase is min\"},\"minReserveFactor()\":{\"notice\":\"the max % decrease from the initial\"},\"minVotePercentage()\":{\"notice\":\"the % of tokens required to be voting for an auction to start\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/fractional/Settings.sol\":\"Settings\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"contracts/fractional/Interfaces/ISettings.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface ISettings {\\n\\n    function maxAuctionLength() external returns(uint256);\\n\\n    function minAuctionLength() external returns(uint256);\\n\\n    function maxCuratorFee() external returns(uint256);\\n\\n    function governanceFee() external returns(uint256);\\n\\n    function minBidIncrease() external returns(uint256);\\n\\n    function minVotePercentage() external returns(uint256);\\n\\n    function maxReserveFactor() external returns(uint256);\\n\\n    function minReserveFactor() external returns(uint256);\\n\\n    function feeReceiver() external returns(address payable);\\n\\n}\",\"keccak256\":\"0x4530040876f33b7afaa3699161aa3cbe7b1dae23e1d362a16d0f51df2ed1ebb3\",\"license\":\"MIT\"},\"contracts/fractional/OpenZeppelin/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor () {\\n        address msgSender = _msgSender();\\n        _owner = msgSender;\\n        emit OwnershipTransferred(address(0), msgSender);\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions anymore. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby removing any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        emit OwnershipTransferred(_owner, address(0));\\n        _owner = address(0);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        emit OwnershipTransferred(_owner, newOwner);\\n        _owner = newOwner;\\n    }\\n}\\n\",\"keccak256\":\"0x1cae4f85f114ff17b90414f5da67365b1d00337abb5bce9bf944eb78a2c0673c\",\"license\":\"MIT\"},\"contracts/fractional/OpenZeppelin/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\n/*\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with GSN meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xfc80c9f9d5f508ca3ec909b40ead8e29ba7c254f08c496139057a55d2d63266c\",\"license\":\"MIT\"},\"contracts/fractional/Settings.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./OpenZeppelin/access/Ownable.sol\\\";\\nimport \\\"./Interfaces/ISettings.sol\\\";\\n\\ncontract Settings is Ownable, ISettings {\\n\\n    /// @notice the maximum auction length\\n    uint256 public override maxAuctionLength;\\n\\n    /// @notice the longest an auction can ever be\\n    uint256 public constant maxMaxAuctionLength = 8 weeks;\\n\\n    /// @notice the minimum auction length\\n    uint256 public override minAuctionLength;\\n\\n    /// @notice the shortest an auction can ever be\\n    uint256 public constant minMinAuctionLength = 1 days;\\n\\n    /// @notice governance fee max\\n    uint256 public override governanceFee;\\n\\n    /// @notice 10% fee is max\\n    uint256 public constant maxGovFee = 100;\\n\\n    /// @notice max curator fee\\n    uint256 public override maxCuratorFee;\\n\\n    /// @notice the % bid increase required for a new bid\\n    uint256 public override minBidIncrease;\\n\\n    /// @notice 10% bid increase is max \\n    uint256 public constant maxMinBidIncrease = 100;\\n\\n    /// @notice 1% bid increase is min\\n    uint256 public constant minMinBidIncrease = 10;\\n\\n    /// @notice the % of tokens required to be voting for an auction to start\\n    uint256 public override minVotePercentage;\\n\\n    /// @notice the max % increase over the initial \\n    uint256 public override maxReserveFactor;\\n\\n    /// @notice the max % decrease from the initial\\n    uint256 public override minReserveFactor;\\n\\n    /// @notice the address who receives auction fees\\n    address payable public override feeReceiver;\\n\\n    event UpdateMaxAuctionLength(uint256 _old, uint256 _new);\\n\\n    event UpdateMinAuctionLength(uint256 _old, uint256 _new);\\n\\n    event UpdateGovernanceFee(uint256 _old, uint256 _new);\\n\\n    event UpdateCuratorFee(uint256 _old, uint256 _new);\\n\\n    event UpdateMinBidIncrease(uint256 _old, uint256 _new);\\n\\n    event UpdateMinVotePercentage(uint256 _old, uint256 _new);\\n\\n    event UpdateMaxReserveFactor(uint256 _old, uint256 _new);\\n\\n    event UpdateMinReserveFactor(uint256 _old, uint256 _new);\\n\\n    event UpdateFeeReceiver(address _old, address _new);\\n\\n    constructor() {\\n        maxAuctionLength = 2 weeks;\\n        minAuctionLength = 3 days;\\n        feeReceiver = payable(msg.sender);\\n        minReserveFactor = 200;  // 20%\\n        maxReserveFactor = 5000; // 500%\\n        minBidIncrease = 50;     // 5%\\n        maxCuratorFee = 100;\\n        minVotePercentage = 250; // 25%\\n    }\\n\\n    function setMaxAuctionLength(uint256 _length) external onlyOwner {\\n        require(_length <= maxMaxAuctionLength, \\\"max auction length too high\\\");\\n        require(_length > minAuctionLength, \\\"max auction length too low\\\");\\n\\n        emit UpdateMaxAuctionLength(maxAuctionLength, _length);\\n\\n        maxAuctionLength = _length;\\n    }\\n\\n    function setMinAuctionLength(uint256 _length) external onlyOwner {\\n        require(_length >= minMinAuctionLength, \\\"min auction length too low\\\");\\n        require(_length < maxAuctionLength, \\\"min auction length too high\\\");\\n\\n        emit UpdateMinAuctionLength(minAuctionLength, _length);\\n\\n        minAuctionLength = _length;\\n    }\\n\\n    function setGovernanceFee(uint256 _fee) external onlyOwner {\\n        require(_fee <= maxGovFee, \\\"fee too high\\\");\\n\\n        emit UpdateGovernanceFee(governanceFee, _fee);\\n\\n        governanceFee = _fee;\\n    }\\n\\n    function setMaxCuratorFee(uint256 _fee) external onlyOwner {\\n        emit UpdateCuratorFee(governanceFee, _fee);\\n\\n        maxCuratorFee = _fee;\\n    }\\n\\n    function setMinBidIncrease(uint256 _min) external onlyOwner {\\n        require(_min <= maxMinBidIncrease, \\\"min bid increase too high\\\");\\n        require(_min >= minMinBidIncrease, \\\"min bid increase too low\\\");\\n\\n        emit UpdateMinBidIncrease(minBidIncrease, _min);\\n\\n        minBidIncrease = _min;\\n    }\\n\\n    function setMinVotePercentage(uint256 _min) external onlyOwner {\\n        // 1000 is 100%\\n        require(_min <= 1000, \\\"min vote percentage too high\\\");\\n\\n        emit UpdateMinVotePercentage(minVotePercentage, _min);\\n\\n        minVotePercentage = _min;\\n    }\\n\\n    function setMaxReserveFactor(uint256 _factor) external onlyOwner {\\n        require(_factor > minReserveFactor, \\\"max reserve factor too low\\\");\\n\\n        emit UpdateMaxReserveFactor(maxReserveFactor, _factor);\\n\\n        maxReserveFactor = _factor;\\n    }\\n\\n    function setMinReserveFactor(uint256 _factor) external onlyOwner {\\n        require(_factor < maxReserveFactor, \\\"min reserve factor too high\\\");\\n\\n        emit UpdateMinReserveFactor(minReserveFactor, _factor);\\n\\n        minReserveFactor = _factor;\\n    }\\n\\n    function setFeeReceiver(address payable _receiver) external onlyOwner {\\n        require(_receiver != address(0), \\\"fees cannot go to 0 address\\\");\\n\\n        emit UpdateFeeReceiver(feeReceiver, _receiver);\\n\\n        feeReceiver = _receiver;\\n    }\\n\\n}\",\"keccak256\":\"0x0bcfbd4c4cf5461c48f3507de55185eb9fc09009dcc87fea6cf6d50800afdbe5\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600080546001600160a01b031916339081178255604051909182917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a350621275006001556203f480600255600980546001600160a01b0319163317905560c86008556113886007556032600555606460045560fa600655610e0d8061009b6000396000f3fe608060405234801561001057600080fd5b50600436106101ae5760003560e01c80637c513c0f116100ee578063a0b335e311610097578063d213b90011610071578063d213b90014610302578063efdcd9741461030c578063f2fde38b1461031f578063fcd81e321461027757600080fd5b8063a0b335e3146102d3578063affdafd8146102dc578063b3f00674146102ef57600080fd5b80638a364bc1116100c85780638a364bc1146102925780638da5cb5b1461029b5780639665eb0f146102c057600080fd5b80637c513c0f1461026e578063846a4dd214610277578063848103091461027f57600080fd5b806332a693301161015b57806357c74c6c1161013557806357c74c6c1461022d5780636109f5b5146102405780636fc83db314610253578063715018a61461026657600080fd5b806332a6933014610209578063339f87ed1461021c5780635410bfc91461022457600080fd5b806318fee3bf1161018c57806318fee3bf146101e15780631a58364c146101f657806332977c731461020057600080fd5b806309990a96146101b35780630e519ef9146101cf5780630ea90a12146101d8575b600080fd5b6101bc60085481565b6040519081526020015b60405180910390f35b6101bc60015481565b6101bc60035481565b6101f46101ef366004610db0565b610332565b005b6101bc6249d40081565b6101bc60065481565b6101f4610217366004610db0565b610411565b6101bc600a81565b6101bc60075481565b6101f461023b366004610db0565b6104eb565b6101f461024e366004610db0565b6105c6565b6101f4610261366004610db0565b61064f565b6101f461077c565b6101bc60055481565b6101bc606481565b6101f461028d366004610db0565b61081b565b6101bc60045481565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016101c6565b6101f46102ce366004610db0565b6108f5565b6101bc60025481565b6101f46102ea366004610db0565b610a20565b6009546102a8906001600160a01b031681565b6101bc6201518081565b6101f461031a366004610d8d565b610b4d565b6101f461032d366004610d8d565b610c61565b6000546001600160a01b0316331461037f5760405162461bcd60e51b81526020600482018190526024820152600080516020610de183398151915260448201526064015b60405180910390fd5b60075481106103d05760405162461bcd60e51b815260206004820152601b60248201527f6d696e207265736572766520666163746f7220746f6f206869676800000000006044820152606401610376565b60085460408051918252602082018390527fa93910a1e82dcd753b639a2ff1def7bf84d6bb1bf6fe79212d0d9ae72afc6cfa910160405180910390a1600855565b6000546001600160a01b031633146104595760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60648111156104aa5760405162461bcd60e51b815260206004820152600c60248201527f66656520746f6f206869676800000000000000000000000000000000000000006044820152606401610376565b60035460408051918252602082018390527f11b96af861c45de0c17127383516c92fc2a9d50eff86ea831b69e76a3fa87e2f910160405180910390a1600355565b6000546001600160a01b031633146105335760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6103e88111156105855760405162461bcd60e51b815260206004820152601c60248201527f6d696e20766f74652070657263656e7461676520746f6f2068696768000000006044820152606401610376565b60065460408051918252602082018390527ff8298d9709c2527c6ec1e2c605c5a163b44b0520bdd80335d5faba17e3f38fb8910160405180910390a1600655565b6000546001600160a01b0316331461060e5760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60035460408051918252602082018390527f283f7179cc13a8f90c3123b415b98ca8a0ca9619eed3c981db52809ab62700f9910160405180910390a1600455565b6000546001600160a01b031633146106975760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b620151808110156106ea5760405162461bcd60e51b815260206004820152601a60248201527f6d696e2061756374696f6e206c656e67746820746f6f206c6f770000000000006044820152606401610376565b600154811061073b5760405162461bcd60e51b815260206004820152601b60248201527f6d696e2061756374696f6e206c656e67746820746f6f206869676800000000006044820152606401610376565b60025460408051918252602082018390527f055017e5b2f20973817c668e2f744e7c1b68a6f20332f25bb7b9bbb2f0c7eca7910160405180910390a1600255565b6000546001600160a01b031633146107c45760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a36000805473ffffffffffffffffffffffffffffffffffffffff19169055565b6000546001600160a01b031633146108635760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60085481116108b45760405162461bcd60e51b815260206004820152601a60248201527f6d6178207265736572766520666163746f7220746f6f206c6f770000000000006044820152606401610376565b60075460408051918252602082018390527febec08ac4f5f91f0463f6e09a9b1729f1cbea09d240d8a1807ed6b9cd171ef19910160405180910390a1600755565b6000546001600160a01b0316331461093d5760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b606481111561098e5760405162461bcd60e51b815260206004820152601960248201527f6d696e2062696420696e63726561736520746f6f2068696768000000000000006044820152606401610376565b600a8110156109df5760405162461bcd60e51b815260206004820152601860248201527f6d696e2062696420696e63726561736520746f6f206c6f7700000000000000006044820152606401610376565b60055460408051918252602082018390527f3995c181714327dbf0232c3b20873e87ca6978b6418eec0f97a1447c5a4c43fc910160405180910390a1600555565b6000546001600160a01b03163314610a685760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6249d400811115610abb5760405162461bcd60e51b815260206004820152601b60248201527f6d61782061756374696f6e206c656e67746820746f6f206869676800000000006044820152606401610376565b6002548111610b0c5760405162461bcd60e51b815260206004820152601a60248201527f6d61782061756374696f6e206c656e67746820746f6f206c6f770000000000006044820152606401610376565b60015460408051918252602082018390527f06684837277f012a4c3a13c8ec0e53d85b843e328a811a8f5f25f5e1456d9f59910160405180910390a1600155565b6000546001600160a01b03163314610b955760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6001600160a01b038116610beb5760405162461bcd60e51b815260206004820152601b60248201527f666565732063616e6e6f7420676f20746f2030206164647265737300000000006044820152606401610376565b600954604080516001600160a01b03928316815291831660208301527f2861448678f0be67f11bfb5481b3e3b4cfeb3acc6126ad60a05f95bfc6530666910160405180910390a16009805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b0392909216919091179055565b6000546001600160a01b03163314610ca95760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6001600160a01b038116610d255760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152608401610376565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a36000805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b0392909216919091179055565b600060208284031215610d9e578081fd5b8135610da981610dc8565b9392505050565b600060208284031215610dc1578081fd5b5035919050565b6001600160a01b0381168114610ddd57600080fd5b5056fe4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572a164736f6c6343000804000a",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106101ae5760003560e01c80637c513c0f116100ee578063a0b335e311610097578063d213b90011610071578063d213b90014610302578063efdcd9741461030c578063f2fde38b1461031f578063fcd81e321461027757600080fd5b8063a0b335e3146102d3578063affdafd8146102dc578063b3f00674146102ef57600080fd5b80638a364bc1116100c85780638a364bc1146102925780638da5cb5b1461029b5780639665eb0f146102c057600080fd5b80637c513c0f1461026e578063846a4dd214610277578063848103091461027f57600080fd5b806332a693301161015b57806357c74c6c1161013557806357c74c6c1461022d5780636109f5b5146102405780636fc83db314610253578063715018a61461026657600080fd5b806332a6933014610209578063339f87ed1461021c5780635410bfc91461022457600080fd5b806318fee3bf1161018c57806318fee3bf146101e15780631a58364c146101f657806332977c731461020057600080fd5b806309990a96146101b35780630e519ef9146101cf5780630ea90a12146101d8575b600080fd5b6101bc60085481565b6040519081526020015b60405180910390f35b6101bc60015481565b6101bc60035481565b6101f46101ef366004610db0565b610332565b005b6101bc6249d40081565b6101bc60065481565b6101f4610217366004610db0565b610411565b6101bc600a81565b6101bc60075481565b6101f461023b366004610db0565b6104eb565b6101f461024e366004610db0565b6105c6565b6101f4610261366004610db0565b61064f565b6101f461077c565b6101bc60055481565b6101bc606481565b6101f461028d366004610db0565b61081b565b6101bc60045481565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016101c6565b6101f46102ce366004610db0565b6108f5565b6101bc60025481565b6101f46102ea366004610db0565b610a20565b6009546102a8906001600160a01b031681565b6101bc6201518081565b6101f461031a366004610d8d565b610b4d565b6101f461032d366004610d8d565b610c61565b6000546001600160a01b0316331461037f5760405162461bcd60e51b81526020600482018190526024820152600080516020610de183398151915260448201526064015b60405180910390fd5b60075481106103d05760405162461bcd60e51b815260206004820152601b60248201527f6d696e207265736572766520666163746f7220746f6f206869676800000000006044820152606401610376565b60085460408051918252602082018390527fa93910a1e82dcd753b639a2ff1def7bf84d6bb1bf6fe79212d0d9ae72afc6cfa910160405180910390a1600855565b6000546001600160a01b031633146104595760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60648111156104aa5760405162461bcd60e51b815260206004820152600c60248201527f66656520746f6f206869676800000000000000000000000000000000000000006044820152606401610376565b60035460408051918252602082018390527f11b96af861c45de0c17127383516c92fc2a9d50eff86ea831b69e76a3fa87e2f910160405180910390a1600355565b6000546001600160a01b031633146105335760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6103e88111156105855760405162461bcd60e51b815260206004820152601c60248201527f6d696e20766f74652070657263656e7461676520746f6f2068696768000000006044820152606401610376565b60065460408051918252602082018390527ff8298d9709c2527c6ec1e2c605c5a163b44b0520bdd80335d5faba17e3f38fb8910160405180910390a1600655565b6000546001600160a01b0316331461060e5760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60035460408051918252602082018390527f283f7179cc13a8f90c3123b415b98ca8a0ca9619eed3c981db52809ab62700f9910160405180910390a1600455565b6000546001600160a01b031633146106975760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b620151808110156106ea5760405162461bcd60e51b815260206004820152601a60248201527f6d696e2061756374696f6e206c656e67746820746f6f206c6f770000000000006044820152606401610376565b600154811061073b5760405162461bcd60e51b815260206004820152601b60248201527f6d696e2061756374696f6e206c656e67746820746f6f206869676800000000006044820152606401610376565b60025460408051918252602082018390527f055017e5b2f20973817c668e2f744e7c1b68a6f20332f25bb7b9bbb2f0c7eca7910160405180910390a1600255565b6000546001600160a01b031633146107c45760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a36000805473ffffffffffffffffffffffffffffffffffffffff19169055565b6000546001600160a01b031633146108635760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b60085481116108b45760405162461bcd60e51b815260206004820152601a60248201527f6d6178207265736572766520666163746f7220746f6f206c6f770000000000006044820152606401610376565b60075460408051918252602082018390527febec08ac4f5f91f0463f6e09a9b1729f1cbea09d240d8a1807ed6b9cd171ef19910160405180910390a1600755565b6000546001600160a01b0316331461093d5760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b606481111561098e5760405162461bcd60e51b815260206004820152601960248201527f6d696e2062696420696e63726561736520746f6f2068696768000000000000006044820152606401610376565b600a8110156109df5760405162461bcd60e51b815260206004820152601860248201527f6d696e2062696420696e63726561736520746f6f206c6f7700000000000000006044820152606401610376565b60055460408051918252602082018390527f3995c181714327dbf0232c3b20873e87ca6978b6418eec0f97a1447c5a4c43fc910160405180910390a1600555565b6000546001600160a01b03163314610a685760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6249d400811115610abb5760405162461bcd60e51b815260206004820152601b60248201527f6d61782061756374696f6e206c656e67746820746f6f206869676800000000006044820152606401610376565b6002548111610b0c5760405162461bcd60e51b815260206004820152601a60248201527f6d61782061756374696f6e206c656e67746820746f6f206c6f770000000000006044820152606401610376565b60015460408051918252602082018390527f06684837277f012a4c3a13c8ec0e53d85b843e328a811a8f5f25f5e1456d9f59910160405180910390a1600155565b6000546001600160a01b03163314610b955760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6001600160a01b038116610beb5760405162461bcd60e51b815260206004820152601b60248201527f666565732063616e6e6f7420676f20746f2030206164647265737300000000006044820152606401610376565b600954604080516001600160a01b03928316815291831660208301527f2861448678f0be67f11bfb5481b3e3b4cfeb3acc6126ad60a05f95bfc6530666910160405180910390a16009805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b0392909216919091179055565b6000546001600160a01b03163314610ca95760405162461bcd60e51b81526020600482018190526024820152600080516020610de18339815191526044820152606401610376565b6001600160a01b038116610d255760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201527f64647265737300000000000000000000000000000000000000000000000000006064820152608401610376565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a36000805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b0392909216919091179055565b600060208284031215610d9e578081fd5b8135610da981610dc8565b9392505050565b600060208284031215610dc1578081fd5b5035919050565b6001600160a01b0381168114610ddd57600080fd5b5056fe4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572a164736f6c6343000804000a",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "feeReceiver()": {
+        "notice": "the address who receives auction fees"
+      },
+      "governanceFee()": {
+        "notice": "governance fee max"
+      },
+      "maxAuctionLength()": {
+        "notice": "the maximum auction length"
+      },
+      "maxCuratorFee()": {
+        "notice": "max curator fee"
+      },
+      "maxGovFee()": {
+        "notice": "10% fee is max"
+      },
+      "maxMaxAuctionLength()": {
+        "notice": "the longest an auction can ever be"
+      },
+      "maxMinBidIncrease()": {
+        "notice": "10% bid increase is max "
+      },
+      "maxReserveFactor()": {
+        "notice": "the max % increase over the initial "
+      },
+      "minAuctionLength()": {
+        "notice": "the minimum auction length"
+      },
+      "minBidIncrease()": {
+        "notice": "the % bid increase required for a new bid"
+      },
+      "minMinAuctionLength()": {
+        "notice": "the shortest an auction can ever be"
+      },
+      "minMinBidIncrease()": {
+        "notice": "1% bid increase is min"
+      },
+      "minReserveFactor()": {
+        "notice": "the max % decrease from the initial"
+      },
+      "minVotePercentage()": {
+        "notice": "the % of tokens required to be voting for an auction to start"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1768,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 13905,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "maxAuctionLength",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13913,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "minAuctionLength",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13921,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "governanceFee",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13929,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "maxCuratorFee",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13933,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "minBidIncrease",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13945,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "minVotePercentage",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13949,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "maxReserveFactor",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13953,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "minReserveFactor",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 13957,
+        "contract": "contracts/fractional/Settings.sol:Settings",
+        "label": "feeReceiver",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_address_payable"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_address_payable": {
+        "encoding": "inplace",
+        "label": "address payable",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
