@@ -25,8 +25,8 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         uint256 tokenId = getTokenId(token);
 
-        _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
         virtualEthPoolSupply[token] = initVirtualEthSupply;
+        _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
 
         emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
     }
