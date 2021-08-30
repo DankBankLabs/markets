@@ -87,9 +87,14 @@ const config: HardhatUserConfig = {
     networks: {
         hardhat: {
             accounts: {
+                count: 10,
+                initialIndex: 0,
                 mnemonic,
+                path: "m/44'/60'/0'/0",
             },
             chainId: chainIds.hardhat,
+            hardfork: "london",
+            forking: { url: "https://mainnet.infura.io/v3/" + infuraApiKey }  // eslint-disable-line
         },
         localhost: {
             ...createNetworkConfig("localhost"),
