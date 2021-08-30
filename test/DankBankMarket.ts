@@ -26,7 +26,7 @@ describe("Market", function () {
     before(async function () {
         this.signers = {} as Signers;
 
-        const signers: SignerWithAddress[] = await ethers.getSigners();
+        const signers: SignerWithAddress[] = ((await ethers.getSigners()) as unknown) as SignerWithAddress[];
         this.signers.admin = signers[1];
         this.signers.other = signers[2];
 
