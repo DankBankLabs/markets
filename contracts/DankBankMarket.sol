@@ -6,8 +6,9 @@ import "./ERC1155LPTokenUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable {
+contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
@@ -17,9 +18,16 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         __ERC1155_init(uri);
     }
 
-    function initPool(address token, uint256 inputAmount, uint256 initVirtualEthSupply) external {
+    function initPool(
+        address token,
+        uint256 inputAmount,
+        uint256 initVirtualEthSupply
+    ) external nonReentrant {
         require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
-        require(inputAmount > 0 && initVirtualEthSupply > 0, "DankBankMarket: initial pool amounts must be greater than 0.");
+        require(
+            inputAmount > 0 && initVirtualEthSupply > 0,
+            "DankBankMarket: initial pool amounts must be greater than 0."
+        );
 
         IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
 
@@ -35,7 +43,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         address token,
         uint256 inputAmount,
         uint256 minEthAdded
-    ) external payable {
+    ) external payable nonReentrant {
         require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
 
         IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
@@ -67,7 +75,12 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
     }
 
-    function removeLiquidity(address token, uint256 burnAmount, uint256 minTokens, uint256 minEth) external {
+    function removeLiquidity(
+        address token,
+        uint256 burnAmount,
+        uint256 minTokens,
+        uint256 minEth
+    ) external nonReentrant {
         uint256 tokenId = getTokenId(token);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
@@ -92,7 +105,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         emit LiquidityRemoved(_msgSender(), token, tokensRemoved, ethRemoved, burnAmount);
     }
 
-    function buy(address token, uint256 minTokensOut) external payable {
+    function buy(address token, uint256 minTokensOut) external payable nonReentrant {
         uint256 tokensOut = calculateBuyTokensOut(token, msg.value);
 
         ethPoolSupply[token] += msg.value;
@@ -107,7 +120,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         address token,
         uint256 tokensIn,
         uint256 minEthOut
-    ) external {
+    ) external nonReentrant {
         uint256 ethOut = calculateSellEthOut(token, tokensIn);
 
         require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");

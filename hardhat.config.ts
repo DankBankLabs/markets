@@ -6,6 +6,7 @@ import "@openzeppelin/hardhat-defender";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
+import "hardhat-storage-layout";
 
 import "./tasks/accounts";
 import "./tasks/clean";
@@ -94,7 +95,7 @@ const config: HardhatUserConfig = {
             },
             chainId: chainIds.hardhat,
             hardfork: "london",
-            forking: { url: "https://mainnet.infura.io/v3/" + infuraApiKey }  // eslint-disable-line
+            forking: { url: "https://mainnet.infura.io/v3/" + infuraApiKey }, // eslint-disable-line
         },
         localhost: {
             ...createNetworkConfig("localhost"),
@@ -125,6 +126,11 @@ const config: HardhatUserConfig = {
             optimizer: {
                 enabled: true,
                 runs: 1000,
+            },
+            outputSelection: {
+                "*": {
+                    "*": ["storageLayout"],
+                },
             },
         },
     },
