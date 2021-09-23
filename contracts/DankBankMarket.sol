@@ -6,9 +6,9 @@ import "./ERC1155LPTokenUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable, ReentrancyGuard {
+contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
     uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
