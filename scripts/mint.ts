@@ -66,7 +66,7 @@ async function main() {
    await approvalTx.wait();
    console.debug("Done minting ERC721 NFT: ", NFT_SYMBOL);
 
-    const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, tokenAddress, tokenId, SUPPLY, LIST_PRICE, FEE, { nonce: 15, gasPrice: await getGasPrice() });
+    const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, tokenAddress, tokenId, SUPPLY, LIST_PRICE, FEE, { gasPrice: await getGasPrice() });
     const receipt = await response.wait();
     console.debug("Done fractionalizing NFT");
 
@@ -80,13 +80,13 @@ async function main() {
     const fractionalizedToken = new Contract(newVaultAddress, ERC20_ABI, signer);
 
     
-    const approveToMarketTx = await fractionalizedToken.approve(market.address, constants.MaxUint256, { nonce: 16, gasPrice: await getGasPrice() });
+    const approveToMarketTx = await fractionalizedToken.approve(market.address, constants.MaxUint256, { gasPrice: await getGasPrice() });
     await approveToMarketTx.wait();
     console.debug("Approved transfer for market contract");
 
     const initEthSupply = LIST_PRICE.mul(SUPPLY).div(ONE);
 
-    const initTx = await market.initPool(fractionalizedToken.address, SUPPLY, initEthSupply, { nonce: 17, gasPrice: await getGasPrice() });
+    const initTx = await market.initPool(fractionalizedToken.address, SUPPLY, initEthSupply, { gasPrice: await getGasPrice() });
     await initTx.wait();
     console.debug("Initialized market pool");
 
