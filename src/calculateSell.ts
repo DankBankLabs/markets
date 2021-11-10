@@ -14,3 +14,16 @@ export const calculateSellEthOut = (
 
     return scaledEthPool.mul(tokensIn).div(divisor);
 }
+
+export const calculateSellTokensIn = (
+    ethOut: BigNumber,
+    tokenPool: BigNumber,
+    ethPool: BigNumber
+): BigNumber => {
+    const scaledTokenPool = tokenPool.mul(FEE_MULTIPLIER);
+    const scaledEthPool = ethPool.mul(MULTIPLIER_SUB_ONE);
+
+    const divisor = scaledEthPool.sub(ethOut.mul(MULTIPLIER_SUB_ONE));
+
+    return ethOut.mul(scaledTokenPool).div(divisor).add(1);
+}

@@ -1,6 +1,6 @@
 import hre from "hardhat";
 import { Artifact } from "hardhat/types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 import { TestERC1155 } from "../typechain";
 import { Signers } from "../types";
