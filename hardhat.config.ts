@@ -27,7 +27,7 @@ const chainIds = {
     mainnet: 1,
     rinkeby: 4,
     ropsten: 3,
-    localhost: 31337,
+    localhost: 1337,
 };
 
 // Ensure that we have all the environment variables we need.
@@ -99,6 +99,12 @@ const config: HardhatUserConfig = {
         },
         localhost: {
             ...createNetworkConfig("localhost"),
+            accounts: {
+                count: 10,
+                initialIndex: 0,
+                mnemonic,
+                path: "m/44'/60'/0'/0",
+            },
             saveDeployments: false,
         },
         goerli: createNetworkConfig("goerli"),
