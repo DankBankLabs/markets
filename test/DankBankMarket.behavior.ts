@@ -263,7 +263,7 @@ export function shouldBehaveLikeMarket(): void {
             expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
         });
 
-        it("token in as expected" , async function () {
+        it("test calculateSellTokensIn()" , async function () {
             const MAX = 9;
             const MIN = 1;
             const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
@@ -273,20 +273,7 @@ export function shouldBehaveLikeMarket(): void {
             expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
             const expectedTokensIn = calculateSellTokensIn(expectedEthOut, tokenPool, ethPool);
 
-            const ethBefore = await ethers.provider.getBalance(this.signers.admin.address);
-
-            const tx = await this.market.sell(this.token.address, expectedTokensIn, expectedEthOut);
-
-            const receipt = await tx.wait();
-
-            const ethFee = tx.gasPrice.mul(receipt.gasUsed);
-
-            const expectedEthAfter = ethBefore.add(expectedEthOut).sub(ethFee);
-
-            const ethAfter = await ethers.provider.getBalance(this.signers.admin.address);
-
             expect(expectedTokensIn.toString()).to.equal(tokensIn.toString());
-            expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
         });
 
         it("unable to sell more tokens than ethPool supports", async function () {
