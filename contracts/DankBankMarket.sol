@@ -22,7 +22,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         address token,
         uint256 inputAmount,
         uint256 initVirtualEthSupply
-    ) external nonReentrant {
+    ) external payable nonReentrant {
         require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
         require(
             inputAmount > 0 && initVirtualEthSupply > 0,
@@ -33,10 +33,13 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         uint256 tokenId = getTokenId(token);
 
+        ethPoolSupply[token] += msg.value;
         virtualEthPoolSupply[token] = initVirtualEthSupply;
-        _mint(_msgSender(), tokenId, initVirtualEthSupply, "");
 
-        emit LiquidityAdded(_msgSender(), token, inputAmount, initVirtualEthSupply);
+        uint256 sharesMinted = initVirtualEthSupply + msg.value;
+        _mint(_msgSender(), tokenId, sharesMinted, "");
+
+        emit LiquidityAdded(_msgSender(), token, inputAmount, sharesMinted);
     }
 
     function addLiquidity(
