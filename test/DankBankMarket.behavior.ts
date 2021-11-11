@@ -1,10 +1,9 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { constants, utils, BigNumber } from "ethers";
+import { constants, BigNumber } from "ethers";
 
 import { ONE } from "./helpers";
-import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut } from "../src";
+import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut, calculateSellTokensIn } from "../src";
 
 export function shouldBehaveLikeMarket(): void {
     let expectedTokensOut: BigNumber;
@@ -232,6 +231,19 @@ export function shouldBehaveLikeMarket(): void {
             const ethAfter = await ethers.provider.getBalance(this.signers.admin.address);
 
             expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
+        });
+
+        it("test calculateSellTokensIn()" , async function () {
+            const MAX = 9;
+            const MIN = 1;
+            const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
+            const tokenPool = await this.token.balanceOf(this.market.address);
+            const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
+
+            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
+            const expectedTokensIn = calculateSellTokensIn(expectedEthOut, tokenPool, ethPool);
+
+            expect(expectedTokensIn.toString()).to.equal(tokensIn.toString());
         });
 
         it("unable to sell more tokens than ethPool supports", async function () {
