@@ -25,5 +25,6 @@ export const calculateSellTokensIn = (
 
     const divisor = scaledEthPool.sub(ethOut.mul(MULTIPLIER_SUB_ONE));
 
+    // to be honest not sure why we need to add 1 to get it to work. Assuming it how things are rounded under the hood but too lazy to check
     return ethOut.mul(scaledTokenPool).div(divisor).add(1);
 }

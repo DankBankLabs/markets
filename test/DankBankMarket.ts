@@ -1,6 +1,6 @@
 import { waffle, ethers, artifacts } from "hardhat";
 import { Artifact } from "hardhat/types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
 import { deploy } from "./helpers";
 import { DankBankMarket, TestERC20 } from "../typechain";
