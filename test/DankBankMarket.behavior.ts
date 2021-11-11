@@ -233,7 +233,7 @@ export function shouldBehaveLikeMarket(): void {
             expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
         });
 
-        it("token in as expected" , async function () {
+        it("test calculateSellTokensIn()" , async function () {
             const MAX = 9;
             const MIN = 1;
             const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
