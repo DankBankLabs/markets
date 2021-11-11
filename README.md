@@ -31,6 +31,14 @@ Compile the smart contracts with Hardhat:
 $ yarn compile
 ```
 
+### Run a local node
+
+Expose a JSON-RPC interface to Hardhat Network
+
+```sh
+$ yarn start
+```
+
 ### TypeChain
 
 Compile the smart contracts and generate TypeChain artifacts:

@@ -12,7 +12,7 @@ describe("Unit tests", function () {
     before(async function () {
         this.signers = {} as Signers;
 
-        const signers: SignerWithAddress[] = await hre.ethers.getSigners();
+        const signers: SignerWithAddress[] = ((await hre.ethers.getSigners()) as unknown) as SignerWithAddress[];
         this.signers.admin = signers[0];
     });
 

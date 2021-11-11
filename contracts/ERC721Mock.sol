@@ -15,6 +15,10 @@ contract ERC721Mock is ERC721 {
         return _baseURI();
     }
 
+    function tokenURI(uint256 _tokenId) public override view returns (string memory) {
+        return "https://ipfs.foundation.app/ipfs/QmPvr7qX5BpiseKNiQ4PSkKkAtEV8AdhaY4UhXzApUKLbL/metadata.json";
+    }
+
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
     }
