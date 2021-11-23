@@ -25,9 +25,9 @@ const SUPPLY = ONE.mul(1000000); // 1,000,000 tokens
 const LIST_PRICE = BigNumber.from(10).pow(15); // list for 0.001 ETH
 const FEE = "10"; // 1% fee
 
-const VAULT_FACTORY_ABI = hre.artifacts.readArtifact("ERC721VaultFactory");
-const DANK_MARKET_ABI = hre.artifacts.readArtifact("DankMarket");
-const ERC20_ABI = hre.artifacts.readArtifact("Erc20");
+const VAULT_FACTORY_ABI = hre.artifacts.readArtifactSync("ERC721VaultFactory").abi;
+const DANK_MARKET_ABI = hre.artifacts.readArtifactSync("DankMarket").abi;
+const ERC20_ABI = hre.artifacts.readArtifactSync("Erc20").abi;
 
 async function buyTokens(fractionalizedToken: Contract, market: Contract) {
     const tokenPool = await fractionalizedToken.balanceOf(market.address);
