@@ -4,7 +4,7 @@ import { constants, BigNumber } from "ethers";
 
 import { ONE, deploy } from "./helpers";
 import { TestERC20 } from "../typechain";
-import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut } from "../src";
+import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut, calculateSellTokensIn } from "../src";
 
 export function shouldBehaveLikeMarket(): void {
     let expectedTokensOut: BigNumber;
@@ -218,7 +218,6 @@ export function shouldBehaveLikeMarket(): void {
 
     describe("sell tokens", function () {
         let expectedEthOut: BigNumber;
-        let newEthPool: BigNumber;
         let tokensIn: BigNumber;
         let prevEthPool: BigNumber;
 
@@ -268,6 +267,19 @@ export function shouldBehaveLikeMarket(): void {
             const ethAfter = await ethers.provider.getBalance(this.signers.admin.address);
 
             expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
+        });
+
+        it("test calculateSellTokensIn()" , async function () {
+            const MAX = 9;
+            const MIN = 1;
+            const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
+            const tokenPool = await this.token.balanceOf(this.market.address);
+            const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
+
+            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
+            const expectedTokensIn = calculateSellTokensIn(expectedEthOut, tokenPool, ethPool);
+
+            expect(expectedTokensIn.toString()).to.equal(tokensIn.toString());
         });
 
         it("unable to sell more tokens than ethPool supports", async function () {
