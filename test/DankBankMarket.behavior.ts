@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { constants, BigNumber } from "ethers";
 
-import { ONE } from "./helpers";
+import { ONE, deploy } from "./helpers";
+import { TestERC20 } from "../typechain";
 import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut, calculateSellTokensIn } from "../src";
 
 export function shouldBehaveLikeMarket(): void {
@@ -56,12 +57,54 @@ export function shouldBehaveLikeMarket(): void {
             expect(virtualEthPoolSupply.toString()).to.equal(expectedVirtualEthSupply.toString());
         });
 
+        it("has the expected eth pool supply", async function () {
+            const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
+
+            expect(ethPoolSupply.toNumber()).to.equal(0);
+        });
+
         it("reverts if pool is already initialized", async function () {
             await expect(this.market.initPool(this.token.address, ONE, ONE)).to.be.revertedWith(
                 "DankBankMarket: pool already initialized",
             );
         });
     });
+
+    describe("add initial liquidity with an initial eth pool supply", function () {
+        let otherToken: TestERC20;
+        const virtualEthPoolSupply = ONE;
+        const ethPoolSupply = ONE;
+
+        it("works", async function () {
+            otherToken = await deploy<TestERC20>("TestERC20", { args: [], connect: this.signers.admin });
+
+            await otherToken.mint(this.signers.admin.address, ethers.BigNumber.from(10).pow(18).mul(10000));
+
+            await otherToken.approve(this.market.address, constants.MaxUint256);
+
+            const expectedLpShares = virtualEthPoolSupply.add(ethPoolSupply);
+
+            await expect(this.market.initPool(otherToken.address, ONE, ONE, { value: ONE }))
+                .to.emit(this.market, "LiquidityAdded")
+                .withArgs(this.signers.admin.address, otherToken.address, ONE, expectedLpShares);
+
+            const lpShares = await this.market.balanceOf(this.signers.admin.address, otherToken.address);
+
+            expect(lpShares.toString()).to.equal(expectedLpShares.toString());
+        });
+
+        it("has the expected virtual eth supply", async function () {
+            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+
+            expect(virtualEthPoolSupply.toString()).to.equal(virtualEthPoolSupply.toString());
+        });
+
+        it("has the expected eth pool supply", async function () {
+            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+
+            expect(ethPoolSupply.toString()).to.equal(ethPoolSupply.toString());
+        })
+    })
 
     describe("buy tokens", function () {
         it("calc buy amount is as expected", async function () {
@@ -102,12 +145,6 @@ export function shouldBehaveLikeMarket(): void {
             const tokenBalance = await this.token.balanceOf(this.signers.admin.address);
 
             expect(tokenBalance.toString()).to.equal(expectedTokensOut.add(tokenBalanceBeforeTrade).toString());
-        });
-
-        it("eth balance is as expected", async function () {
-            const ethBalance = await ethers.provider.getBalance(this.market.address);
-
-            expect(ethBalance.toString()).to.equal(expectedEthBalance.toString());
         });
 
         it("eth pool balance is as expected", async function () {
@@ -181,7 +218,6 @@ export function shouldBehaveLikeMarket(): void {
 
     describe("sell tokens", function () {
         let expectedEthOut: BigNumber;
-        let newEthPool: BigNumber;
         let tokensIn: BigNumber;
         let prevEthPool: BigNumber;
 

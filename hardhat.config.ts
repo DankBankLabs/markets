@@ -95,7 +95,6 @@ const config: HardhatUserConfig = {
             },
             chainId: chainIds.hardhat,
             hardfork: "london",
-            forking: { url: "https://mainnet.infura.io/v3/" + infuraApiKey }, // eslint-disable-line
         },
         localhost: {
             ...createNetworkConfig("localhost"),
