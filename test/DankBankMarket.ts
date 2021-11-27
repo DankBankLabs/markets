@@ -8,7 +8,8 @@ import { shouldBehaveLikeMarket } from "./DankBankMarket.behavior";
 
 const setup = async (admin: SignerWithAddress) => {
     const market = await deploy<DankBankMarket>("DankBankMarket", { args: [], connect: admin });
-    await market.init("TestURI");
+    // implementation contract is automatically initialized in the constructor
+    // await market.init("TestURI");
     const token = await deploy<TestERC20>("TestERC20", { args: [], connect: admin });
 
     await token.mint(admin.address, ethers.BigNumber.from(10).pow(18).mul(10000));
