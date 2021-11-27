@@ -601,6 +601,130 @@
           }
         }
       }
+    },
+    "12d5967283d2a56f32e92f7774dd1ba4b880415350ac237ad7a5c0aed7811dfd": {
+      "address": "0x30373DC42519722b0D14c51Ec4F1De73e56BbFFc",
+      "txHash": "0x0419af79b9516eeb65a8cdda8b9e57c23840ac7b6be12f088fe10ff538c66f3d",
+      "layout": {
+        "storage": [
+          {
+            "contract": "DankBankMarketData",
+            "label": "virtualEthPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketData.sol:5"
+          },
+          {
+            "contract": "DankBankMarketData",
+            "label": "ethPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketData.sol:6"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:35"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:33"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_uri",
+            "type": "t_string_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:39"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_tokenSupplies",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:41"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)47_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:486"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_array(t_uint256)47_storage": {
+            "label": "uint256[47]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
     }
   }
 }
