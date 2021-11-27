@@ -15,6 +15,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
     uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
     // TODO: ideally the constructor makes the implementation contract unusable
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
         __ERC1155_init("uri for initializing the implementation contract");
     }
