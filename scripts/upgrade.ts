@@ -11,6 +11,11 @@ const getMarketAddress = (networkName: string): string => {
 };
 
 async function main() {
+    const [deployer] = await ethers.getSigners();
+    console.log("Deploying contracts with the account:", deployer.address);
+
+    console.log("Account balance:", (await deployer.getBalance()).toString());
+
     const marketAddress = getMarketAddress(network.name);
 
     const marketFactory = await ethers.getContractFactory("DankBankMarket");
