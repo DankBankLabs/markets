@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (metatx/MinimalForwarder.sol)
+// OpenZeppelin Contracts v4.4.1 (metatx/MinimalForwarder.sol)
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin-contracts-upgradeable/contracts/utils/cryptography/ECDSAUpgradeable.sol";
-import "@openzeppelin-contracts-upgradeable/contracts/utils/cryptography/draft-EIP712Upgradeable.sol";
-import "@openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
 /**
  * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.
  */
-contract MinimalForwarderUpgradeable is Initializable, EIP712Upgradeable {
-    using ECDSAUpgradeable for bytes32;
+contract MinimalForwarder is EIP712 {
+    using ECDSA for bytes32;
 
     struct ForwardRequest {
         address from;
@@ -27,12 +26,7 @@ contract MinimalForwarderUpgradeable is Initializable, EIP712Upgradeable {
 
     mapping(address => uint256) private _nonces;
 
-    function __MinimalForwarder_init() internal onlyInitializing {
-        __EIP712_init_unchained("MinimalForwarder", "0.0.1");
-        __MinimalForwarder_init_unchained();
-    }
-
-    function __MinimalForwarder_init_unchained() internal onlyInitializing {}
+    constructor() EIP712("MinimalForwarder", "0.0.1") {}
 
     function getNonce(address from) public view returns (uint256) {
         return _nonces[from];
@@ -62,6 +56,4 @@ contract MinimalForwarderUpgradeable is Initializable, EIP712Upgradeable {
 
         return (success, returndata);
     }
-
-    uint256[49] private __gap;
 }

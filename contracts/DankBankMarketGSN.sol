@@ -4,16 +4,15 @@ pragma solidity 0.8.4;
 import "./DankBankMarketData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
-import "@openzeppelin/contracts/metatx/MinimalForwarder.sol";
 
-contract DankBankMarket is
-    ERC2771Context,
+contract DankBankMarketGSN is
     DankBankMarketData,
     Initializable,
+    ERC2771ContextUpgradeable,
     ERC1155LPTokenUpgradeable,
     ReentrancyGuardUpgradeable
 {
@@ -24,11 +23,13 @@ contract DankBankMarket is
 
     // TODO: ideally the constructor makes the implementation contract unusable
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(address trustedForwarder) ERC2771Context(trustedForwarder) initializer {
+    constructor(address trustedForwarder) initializer {
+        ERC2771ContextUpgradeable(trustedForwarder);
         __ERC1155_init("uri for initializing the implementation contract");
     }
 
-    function init(string memory uri, address trustedForwarder) public ERC2771Context(trustedForwarder) initializer {
+    function init(string memory uri, address trustedForwarder) public initializer {
+        ERC2771ContextUpgradeable(trustedForwarder);
         __ERC1155_init(uri);
     }
 
@@ -201,5 +202,18 @@ contract DankBankMarket is
 
     function getTokenId(address token) public pure returns (uint256) {
         return uint256(uint160(token));
+    }
+
+    function _msgSender()
+        internal
+        view
+        override(ContextUpgradeable, ERC2771ContextUpgradeable)
+        returns (address sender)
+    {
+        return ERC2771ContextUpgradeable._msgSender();
+    }
+
+    function _msgData() internal view override(ContextUpgradeable, ERC2771ContextUpgradeable) returns (bytes memory) {
+        return ERC2771ContextUpgradeable._msgData();
     }
 }
