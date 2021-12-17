@@ -16,7 +16,7 @@ async function main() {
         initializer: "init",
     });
 
-    console.log({ gsnMarket });
+    console.log(`GSN Market Address: ${gsnMarket.address}`);
 }
 
 main()

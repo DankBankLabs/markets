@@ -23,13 +23,12 @@ contract DankBankMarketGSN is
 
     // TODO: ideally the constructor makes the implementation contract unusable
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(address trustedForwarder) initializer {
-        ERC2771ContextUpgradeable(trustedForwarder);
+    constructor() initializer {
         __ERC1155_init("uri for initializing the implementation contract");
     }
 
     function init(string memory uri, address trustedForwarder) public initializer {
-        ERC2771ContextUpgradeable(trustedForwarder);
+        __ERC2771Context_init(trustedForwarder);
         __ERC1155_init(uri);
     }
 
