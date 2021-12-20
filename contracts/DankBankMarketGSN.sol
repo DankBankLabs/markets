@@ -5,9 +5,9 @@ import "./DankBankMarketData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract DankBankMarketGSN is
     DankBankMarketData,
@@ -16,7 +16,7 @@ contract DankBankMarketGSN is
     ERC1155LPTokenUpgradeable,
     ReentrancyGuardUpgradeable
 {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
     uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
@@ -43,7 +43,7 @@ contract DankBankMarketGSN is
             "DankBankMarket: initial pool amounts must be greater than 0."
         );
 
-        IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
+        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
 
@@ -63,11 +63,11 @@ contract DankBankMarketGSN is
     ) external payable nonReentrant {
         require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
 
-        IERC20(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
+        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
 
         uint256 tokenId = getTokenId(token);
 
-        uint256 prevPoolBalance = IERC20(token).balanceOf(address(this)) - inputAmount;
+        uint256 prevPoolBalance = IERC20Upgradeable(token).balanceOf(address(this)) - inputAmount;
 
         uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
 
@@ -107,14 +107,14 @@ contract DankBankMarketGSN is
 
         virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
 
-        uint256 tokensRemoved = (burnAmount * IERC20(token).balanceOf(address(this))) / lpSupply;
+        uint256 tokensRemoved = (burnAmount * IERC20Upgradeable(token).balanceOf(address(this))) / lpSupply;
         require(tokensRemoved >= minTokens, "DankBankMarket: Token out is less than minimum specified");
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
 
         // XXX: _burn must by attempted before transfers to prevent reentrancy
-        IERC20(token).safeTransfer(_msgSender(), tokensRemoved);
+        IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensRemoved);
 
         (bool success, ) = _msgSender().call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
@@ -128,7 +128,7 @@ contract DankBankMarketGSN is
         ethPoolSupply[token] += msg.value;
 
         require(tokensOut >= minTokensOut, "DankBankMarket: Insufficient tokens out.");
-        IERC20(token).safeTransfer(_msgSender(), tokensOut);
+        IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensOut);
 
         emit DankBankBuy(_msgSender(), token, msg.value, tokensOut);
     }
@@ -147,7 +147,7 @@ contract DankBankMarketGSN is
             ethPoolSupply[token] -= ethOut;
         }
 
-        IERC20(token).safeTransferFrom(_msgSender(), address(this), tokensIn);
+        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), tokensIn);
 
         (bool success, ) = _msgSender().call{ value: ethOut }("");
         require(success, "DankBankMarket: Transfer failed.");
@@ -169,7 +169,7 @@ contract DankBankMarketGSN is
         tokensOut = tokenPool - newTokenPool;
         */
 
-        uint256 scaledTokenPool = IERC20(token).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
+        uint256 scaledTokenPool = IERC20Upgradeable(token).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
         uint256 scaledEthPool = getTotalEthPoolSupply(token) * FEE_MULTIPLIER;
 
         tokensOut = (scaledTokenPool * ethIn) / (scaledEthPool + MULTIPLIER_SUB_ONE * ethIn);
@@ -181,7 +181,7 @@ contract DankBankMarketGSN is
 
         uint256 fee = tokensIn / FEE_MULTIPLIER;
 
-        uint256 tokenPool = IERC20(token).balanceOf(address(this));
+        uint256 tokenPool = IERC20Upgradeable(token).balanceOf(address(this));
         uint256 ethPool = getTotalEthPoolSupply(token);
         uint256 invariant = ethPool * tokenPool;
 
@@ -190,7 +190,7 @@ contract DankBankMarketGSN is
         */
 
         uint256 scaledEthPool = getTotalEthPoolSupply(token) * MULTIPLIER_SUB_ONE;
-        uint256 scaledTokenPool = IERC20(token).balanceOf(address(this)) * FEE_MULTIPLIER;
+        uint256 scaledTokenPool = IERC20Upgradeable(token).balanceOf(address(this)) * FEE_MULTIPLIER;
 
         ethOut = (scaledEthPool * tokensIn) / (scaledTokenPool + MULTIPLIER_SUB_ONE * tokensIn);
     }
