@@ -75,6 +75,7 @@
         "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"",
         "deploy": "hardhat run scripts/deploy.ts",
         "deploy:network": "hardhat run scripts/deploy.ts --network",
+        "deploy:gsn:network": "hardhat run scripts/deployGSN.ts --network",
         "upgrade-contracts": "hardhat run scripts/upgrade.ts",
         "mint:network": "hardhat run scripts/mint.ts --network",
         "start": "hardhat node",
@@ -92,8 +93,8 @@
         "prepack": "yarn build"
     },
     "dependencies": {
-        "@openzeppelin/contracts": "^4.2.0",
-        "@openzeppelin/contracts-upgradeable": "^4.2.0",
+        "@openzeppelin/contracts": "^4.4.1",
+        "@openzeppelin/contracts-upgradeable": "^4.4.1",
         "ethers": "^5.0.0",
         "hardhat-deploy": "0.7.5"
     }
