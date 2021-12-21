@@ -32,6 +32,7 @@
         "dotenv": "^10.0.0",
         "eslint": "^7.27.0",
         "eslint-config-prettier": "^8.3.0",
+        "eth-sig-util": "^3.0.1",
         "ethereum-waffle": "^3.3.0",
         "fs-extra": "^10.0.0",
         "hardhat": "^2.6.0",
