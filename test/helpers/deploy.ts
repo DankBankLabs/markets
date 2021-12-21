@@ -1,6 +1,6 @@
 import { MockContract } from "ethereum-waffle";
 import { Contract, Signer } from "ethers";
-import { ethers, waffle, artifacts } from "hardhat";
+import { ethers, waffle, artifacts, upgrades } from "hardhat";
 import { Artifact } from "hardhat/types";
 
 export async function deploy<T extends Contract>(
@@ -25,4 +25,11 @@ export async function deployMock(contractName: string, connect?: Signer): Promis
     const artifact = await artifacts.readArtifact(contractName);
     const deployer = (await ethers.getSigners())[0];
     return waffle.deployMockContract(connect ?? deployer, artifact.abi);
+}
+
+export async function deployProxy<Contract>(contractName: string, forwarderAddress: string): Promise<Contract> {
+    const MarketGSNFactory = await ethers.getContractFactory(contractName);
+    return upgrades.deployProxy(MarketGSNFactory, ["un-used uri", forwarderAddress], {
+        initializer: "init",
+    }) as unknown as Contract;
 }

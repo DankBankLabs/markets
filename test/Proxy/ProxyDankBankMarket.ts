@@ -1,10 +1,10 @@
 import { ethers, artifacts } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import { deploy } from "./helpers";
-import { DankBankMarket, TestERC20, ProxyAdmin, TransparentUpgradeableProxy } from "../typechain";
-import { Signers } from "../types";
-import { shouldBehaveLikeMarket } from "./DankBankMarket.behavior";
+import { deploy } from "../helpers";
+import { DankBankMarket, TestERC20, ProxyAdmin, TransparentUpgradeableProxy } from "../../typechain";
+import { Signers } from "../../types";
+import { shouldBehaveLikeMarket } from "../DankBankMarket/DankBankMarket.behavior";
 
 const setup = async (admin: SignerWithAddress) => {
     const market = await deploy<DankBankMarket>("DankBankMarket", { args: [], connect: admin });

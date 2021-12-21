@@ -1,5 +1,4 @@
 import { signTypedMessage } from "eth-sig-util";
-import { Contract } from "ethers";
 
 const EIP712Domain = [
     { name: "name", type: "string" },
@@ -33,37 +32,25 @@ function getMetaTxTypeData(chainId: any, verifyingContract: any) {
     };
 }
 
-async function signTypedData(privateKeyStr: string, data: any) {
-    const privateKey = Buffer.from(privateKeyStr.replace(/^0x/, ""), "hex");
+async function signTypedData(signer, from, data) {
+    const privateKey = Buffer.from(signer.replace(/^0x/, ""), "hex");
     return signTypedMessage(privateKey, { data });
 }
 
-type BuiltRequest = {
-    value: number;
-    gas: number;
-    nonce: string;
-};
-
-export async function buildRequest(forwarder: Contract, input: MetaTxInput): Promise<BuiltRequest> {
-    const nonce = await forwarder.getNonce(input.from).then((nonce: number) => nonce.toString());
+async function buildRequest(forwarder, input) {
+    const nonce = await forwarder.getNonce(input.from).then(nonce => nonce.toString());
     return { value: 0, gas: 1e6, nonce, ...input };
 }
 
-export async function buildTypedData(forwarder: Contract, request: BuiltRequest) {
-    const chainId = await forwarder.provider.getNetwork().then((n: any) => n.chainId);
+async function buildTypedData(forwarder, request) {
+    const chainId = await forwarder.provider.getNetwork().then(n => n.chainId);
     const typeData = getMetaTxTypeData(chainId, forwarder.address);
     return { ...typeData, message: request };
 }
 
-type MetaTxInput = {
-    to: string;
-    from: string;
-    data: string;
-};
-
-export async function signMetaTxRequest(privateKeyStr: string, forwarder: Contract, input: MetaTxInput) {
+export async function signMetaTxRequest(privateKey, forwarder, input): Promise<{ signature: any; request: any }> {
     const request = await buildRequest(forwarder, input);
     const toSign = await buildTypedData(forwarder, request);
-    const signature = await signTypedData(privateKeyStr, toSign);
+    const signature = await signTypedData(privateKey, input.from, toSign);
     return { signature, request };
 }
