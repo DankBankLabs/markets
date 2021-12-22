@@ -32,6 +32,12 @@ export function shouldBehaveLikeMarketGSN(): void {
     });
 
     it("tokenId is the address of the token", async function () {
+        const tokenId = await this.marketGSN.getTokenId(this.token.address);
+
+        expect(tokenId.toHexString().toLowerCase()).to.equal(this.token.address.toLowerCase());
+    });
+
+    it("relays get tokenId", async function () {
         const response = await relayFunctionCall(this.wallet, this.forwarder, this.marketGSN, "getTokenId", [
             this.token.address,
         ]);
@@ -42,7 +48,7 @@ export function shouldBehaveLikeMarketGSN(): void {
     describe("add initial liquidity", async function () {
         let expectedVirtualEthSupply: BigNumber;
 
-        it.only("reverts adding liquidity if token is not approved", async function () {
+        it("reverts adding liquidity if token is not approved", async function () {
             await expect(this.marketGSN.initPool(this.token.address, ONE, ONE)).to.be.revertedWith(
                 "ERC20: transfer amount exceeds balance",
             );
@@ -63,16 +69,12 @@ export function shouldBehaveLikeMarketGSN(): void {
         it.only("adds liquidity", async function () {
             await this.token.approve(this.marketGSN.address, constants.MaxUint256);
 
-            // await expect(this.marketGSN.initPool(this.token.address, ONE, ONE))
-            //     .to.emit(this.marketGSN, "LiquidityAdded")
-            //     .withArgs(this.signers.admin.address, this.token.address, ONE, ONE);
-
             const methodArgs = [this.token.address, ONE, ONE];
             await relayFunctionCall(this.wallet, this.forwarder, this.marketGSN, "initPool", methodArgs);
 
             expectedVirtualEthSupply = ONE;
 
-            const lpShares = await this.marketGSN.balanceOf(this.signers.admin.address, this.token.address);
+            const lpShares = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
 
             expect(lpShares.toString()).to.equal(ONE.toString());
         });

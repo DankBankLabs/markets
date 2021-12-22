@@ -205,7 +205,9 @@ contract ERC1155LPTokenUpgradeable is
 
         uint256 fromBalance = _balances[id][from];
         require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-        unchecked { _balances[id][from] = fromBalance - amount; }
+        unchecked {
+            _balances[id][from] = fromBalance - amount;
+        }
         _balances[id][to] += amount;
 
         emit TransferSingle(operator, from, to, id, amount);
@@ -243,7 +245,9 @@ contract ERC1155LPTokenUpgradeable is
 
             uint256 fromBalance = _balances[id][from];
             require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-            unchecked { _balances[id][from] = fromBalance - amount; }
+            unchecked {
+                _balances[id][from] = fromBalance - amount;
+            }
             _balances[id][to] += amount;
         }
 
