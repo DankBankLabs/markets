@@ -38,7 +38,6 @@ contract DankBankMarketGSN is
         paymentToken = paymentTokenAddress;
     }
 
-    // CHECK THAT WE DON'T USE TOKEN ANYMORE
     function initPool(
         address memeToken,
         uint256 memeTokenInputAmount,
