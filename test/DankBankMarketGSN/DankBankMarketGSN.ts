@@ -13,15 +13,22 @@ const version = "0.0.1";
 
 const setup = async (wallet: Wallet, walletSigner: Signer) => {
     const forwarder = await deploy<MinimalForwarder>("MinimalForwarder", { args: [], connect: walletSigner });
-    const marketGSN = await deployProxy<DankBankMarketGSN>("DankBankMarketGSN", forwarder.address, walletSigner);
+    const paymentToken = await deploy<TestERC20>("TestERC20", { args: [], connect: walletSigner });
+    const marketGSN = await deployProxy<DankBankMarketGSN>("DankBankMarketGSN", walletSigner, [
+        "un-used uri",
+        forwarder.address,
+        paymentToken.address,
+    ]);
     const token = await deploy<TestERC20>("TestERC20", { args: [], connect: walletSigner });
 
     await token.mint(wallet.address, ethers.BigNumber.from(10).pow(18).mul(10000));
+    await paymentToken.mint(wallet.address, ethers.BigNumber.from(10).pow(18).mul(10000));
 
     return {
         forwarder,
         marketGSN,
         token,
+        paymentToken,
     };
 };
 
@@ -41,6 +48,7 @@ describe("Market", function () {
         this.forwarder = deployment.forwarder;
         this.marketGSN = deployment.marketGSN;
         this.token = deployment.token;
+        this.paymentToken = deployment.paymentToken;
         console.log("Wallet address:", this.wallet.address);
         console.log("marketGSN address:", this.marketGSN.address);
         console.log("forwarder address:", this.forwarder.address);

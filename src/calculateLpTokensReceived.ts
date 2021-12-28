@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 
-export const calculateEthToAdd = (
+export const calculateEthOrTokensToAdd = (
     inputAmount: BigNumber,
-    ethPoolSupply: BigNumber,
-    tokenPoolSupply: BigNumber,
-): BigNumber => inputAmount.mul(ethPoolSupply).div(tokenPoolSupply);
+    ethOrPaymentTokenPoolSupply: BigNumber,
+    memeTokenPoolSupply: BigNumber,
+): BigNumber => inputAmount.mul(ethOrPaymentTokenPoolSupply).div(memeTokenPoolSupply);

@@ -7,4 +7,5 @@ export const ZERO = BigNumber.from(0);
 
 export const EVENTS = Object.freeze({
     LIQUIDITY_ADDED: "LiquidityAdded",
+    BUY: "DankBankBuy",
 });

@@ -3,7 +3,12 @@ import { ethers } from "hardhat";
 import { constants, BigNumber, Contract, Wallet } from "ethers";
 import { ONE, deploy, EVENTS, ZERO } from "../helpers";
 import { TestERC20 } from "../../typechain";
-import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut, calculateSellTokensIn } from "../../src";
+import {
+    calculateBuyTokensOut,
+    calculateEthOrTokensToAdd,
+    calculateSellEthOut,
+    calculateSellTokensIn,
+} from "../../src";
 import { signMetaTxRequest } from "../helpers/signMetaTxRequest";
 import { relay } from "../helpers/relay";
 import { TransactionReceipt } from "@ethersproject/providers";
@@ -18,8 +23,8 @@ function expectEventNotToBeEmitted(transactionReceipt, eventName: string) {
 }
 
 export function shouldBehaveLikeMarketGSN(): void {
-    let expectedTokensOut: BigNumber;
-    let expectedEthBalance: BigNumber;
+    let expectedMemeTokensOut: BigNumber;
+    let expectedPaymentTokenBalance: BigNumber;
 
     async function relayFunctionCall(
         wallet: Wallet,
@@ -27,7 +32,6 @@ export function shouldBehaveLikeMarketGSN(): void {
         marketContract: Contract,
         methodName: string,
         methodArgs: any[],
-        weiToSend: BigNumber = BigNumber.from(0),
     ): Promise<TransactionReceipt> {
         const { request, signature } = await signMetaTxRequest(wallet.privateKey, forwarder, {
             from: wallet.address,
@@ -35,7 +39,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             data: marketContract.interface.encodeFunctionData(methodName, [...methodArgs]),
         });
         const whitelist = [marketContract.address];
-        return relay(forwarder, request, signature, whitelist, weiToSend);
+        return relay(forwarder, request, signature, whitelist);
     }
 
     it("recognizes trusted forwarder", async function () {
@@ -56,10 +60,10 @@ export function shouldBehaveLikeMarketGSN(): void {
     });
 
     describe("add initial liquidity", async function () {
-        let expectedVirtualEthSupply: BigNumber;
+        let expectedVirtualTokenSupply: BigNumber;
 
         it("reverts adding liquidity if token is not approved using meta transaction", async function () {
-            const methodArgs = [this.token.address, ONE, ONE];
+            const methodArgs = [this.token.address, ONE, ZERO, ONE];
             const response = await relayFunctionCall(
                 this.wallet,
                 this.forwarder,
@@ -73,13 +77,14 @@ export function shouldBehaveLikeMarketGSN(): void {
             expect(lpShares.toString()).to.equal(ZERO.toString());
         });
 
-        it("adds liquidity using meta transaction", async function () {
+        it.only("adds liquidity using meta transaction", async function () {
             await this.token.approve(this.marketGSN.address, constants.MaxUint256);
+            await this.paymentToken.approve(this.marketGSN.address, constants.MaxUint256);
 
-            const methodArgs = [this.token.address, ONE, ONE];
+            const methodArgs = [this.token.address, ONE, ZERO, ONE];
             const resp = await relayFunctionCall(this.wallet, this.forwarder, this.marketGSN, "initPool", methodArgs);
 
-            expectedVirtualEthSupply = ONE;
+            expectedVirtualTokenSupply = ONE;
 
             const lpShares = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
 
@@ -87,23 +92,23 @@ export function shouldBehaveLikeMarketGSN(): void {
             expect(lpShares.toString()).to.equal(ONE.toString());
         });
 
-        it("has the expected virtual eth supply", async function () {
-            const virtualEthPoolSupply = await this.marketGSN.virtualEthPoolSupply(this.token.address);
+        it("has the expected virtual token supply", async function () {
+            const virtualTokenPoolSupply = await this.marketGSN.virtualTokenPoolSupply(this.token.address);
 
-            expect(virtualEthPoolSupply.toString()).to.equal(expectedVirtualEthSupply.toString());
+            expect(virtualTokenPoolSupply.toString()).to.equal(expectedVirtualTokenSupply.toString());
         });
 
         it("has the expected eth pool supply", async function () {
-            const ethPoolSupply = await this.marketGSN.ethPoolSupply(this.token.address);
+            const tokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
 
-            expect(ethPoolSupply.toNumber()).to.equal(0);
+            expect(tokenPoolSupply.toNumber()).to.equal(0);
         });
     });
 
     describe("add initial liquidity with an initial eth pool supply", function () {
         let otherToken: TestERC20;
-        const virtualEthPoolSupply = ONE;
-        const ethPoolSupply = ONE;
+        const virtualTokenPoolSupply = ONE;
+        const tokenPoolSupply = ONE;
 
         it.only("adds liquidity using meta transaction", async function () {
             otherToken = await deploy<TestERC20>("TestERC20", { args: [], connect: this.walletSigner });
@@ -111,121 +116,138 @@ export function shouldBehaveLikeMarketGSN(): void {
             await otherToken.mint(this.wallet.address, ethers.BigNumber.from(10).pow(18).mul(10000));
 
             await otherToken.approve(this.marketGSN.address, constants.MaxUint256);
+            await this.paymentToken.approve(this.marketGSN.address, constants.MaxUint256);
 
-            const expectedLpShares = virtualEthPoolSupply.add(ethPoolSupply);
+            const expectedLpShares = virtualTokenPoolSupply.add(tokenPoolSupply);
 
-            const weiToSend = BigNumber.from(ONE);
-            const methodArgs = [otherToken.address, ONE, ONE];
+            const methodArgs = [otherToken.address, ONE, ONE, ONE];
             const resp = await relayFunctionCall(
                 this.wallet,
                 this.forwarder,
                 this.marketGSN,
-                "initPool",
+                "addLiquidity",
                 methodArgs,
-                weiToSend,
             );
 
             const lpShares = await this.marketGSN.balanceOf(this.wallet.address, otherToken.address);
-            console.log("lpShares", lpShares.toString());
 
             expectEventEmitted(resp, EVENTS.LIQUIDITY_ADDED);
             expect(lpShares.toString()).to.equal(expectedLpShares.toString());
         });
 
         it("has the expected virtual eth supply", async function () {
-            const virtualEthPoolSupply = await this.marketGSN.virtualEthPoolSupply(otherToken.address);
+            const virtualTokenPoolSupply = await this.marketGSN.virtualTokenPoolSupply(otherToken.address);
+            const expectedVirtualTokenSupply = ONE;
 
-            expect(virtualEthPoolSupply.toString()).to.equal(virtualEthPoolSupply.toString());
+            expect(virtualTokenPoolSupply.toString()).to.equal(expectedVirtualTokenSupply.toString());
         });
 
         it("has the expected eth pool supply", async function () {
-            const ethPoolSupply = await this.marketGSN.ethPoolSupply(otherToken.address);
+            const tokenPoolSupply = await this.marketGSN.tokenPoolSupply(otherToken.address);
+            const expectedTokenPoolSupply = ONE;
 
-            expect(ethPoolSupply.toString()).to.equal(ethPoolSupply.toString());
+            expect(tokenPoolSupply.toString()).to.equal(expectedTokenPoolSupply.toString());
         });
     });
 
     describe("buy tokens", function () {
-        it("calc buy amount is as expected", async function () {
-            const ethIn = ONE;
-            expectedEthBalance = ethIn;
+        it("calculates buy amount as expected", async function () {
+            const paymentTokensIn = ONE;
+            expectedPaymentTokenBalance = paymentTokensIn;
 
-            const tokenPool = await this.token.balanceOf(this.marketGSN.address);
-            const ethPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
+            const memeTokenPool = await this.token.balanceOf(this.marketGSN.address);
+            const paymentTokenPool = await this.marketGSN.getTotalTokenPoolSupply(this.token.address);
 
-            expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
+            expectedMemeTokensOut = calculateBuyTokensOut(paymentTokensIn, paymentTokenPool, memeTokenPool);
 
-            const buyAmount = await this.marketGSN.calculateBuyTokensOut(this.token.address, ethIn);
-            expect(buyAmount.toString()).to.equal(expectedTokensOut.toString());
+            const buyAmount = await this.marketGSN.calculateBuyTokensOut(this.token.address, paymentTokensIn);
+            expect(buyAmount.toString()).to.equal(expectedMemeTokensOut.toString());
         });
 
         let tokenBalanceBeforeTrade: BigNumber;
 
         it("allows buying tokens", async function () {
-            const ethIn = ONE;
+            const paymentTokensIn = ONE;
 
-            const tokenPool = await this.token.balanceOf(this.marketGSN.address);
-            const ethPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
+            const memeTokenPool = await this.token.balanceOf(this.marketGSN.address);
+            const paymentTokenPool = await this.marketGSN.getTotalTokenPoolSupply(this.token.address);
 
-            expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
+            expectedMemeTokensOut = calculateBuyTokensOut(paymentTokensIn, paymentTokenPool, memeTokenPool);
 
-            tokenBalanceBeforeTrade = await this.token.balanceOf(this.signers.admin.address);
+            tokenBalanceBeforeTrade = await this.token.balanceOf(this.wallet.address);
 
-            await expect(
-                this.marketGSN.buy(this.token.address, expectedTokensOut, {
-                    value: ethIn,
-                }),
-            )
-                .to.emit(this.marketGSN, "DankBankBuy")
-                .withArgs(this.signers.admin.address, this.token.address, ethIn, expectedTokensOut);
+            const methodArgs = [this.token.address, paymentTokensIn, expectedMemeTokensOut];
+            const response = await relayFunctionCall(this.wallet, this.forwarder, this.marketGSN, "buy", methodArgs);
+
+            const tokenBalanceAfterTrade = await this.token.balanceOf(this.wallet.address);
+            const expectedBuyAmount = tokenBalanceAfterTrade.sub(tokenBalanceBeforeTrade);
+
+            expect(expectedBuyAmount).to.be.eq(expectedMemeTokensOut);
+            expectEventNotToBeEmitted(response, EVENTS.BUY);
         });
 
         it("user token balance is as expected", async function () {
-            const tokenBalance = await this.token.balanceOf(this.signers.admin.address);
+            const memeTokenBalance = await this.token.balanceOf(this.wallet.address);
 
-            expect(tokenBalance.toString()).to.equal(expectedTokensOut.add(tokenBalanceBeforeTrade).toString());
+            expect(memeTokenBalance.toString()).to.equal(expectedMemeTokensOut.add(tokenBalanceBeforeTrade).toString());
         });
 
         it("eth pool balance is as expected", async function () {
-            const ethPoolBalance = await this.marketGSN.ethPoolSupply(this.token.address);
+            const paymentTokenPoolBalance = await this.marketGSN.tokenPoolSupply(this.token.address);
 
-            expect(ethPoolBalance.toString()).to.equal(expectedEthBalance.toString());
+            expect(paymentTokenPoolBalance.toString()).to.equal(expectedPaymentTokenBalance.toString());
         });
 
         it("reverts when minTokenOut is not enough", async function () {
-            const ethIn = ONE;
+            const paymentTokensIn = ONE;
 
             const tokenPool = await this.token.balanceOf(this.marketGSN.address);
-            const ethPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
+            const tokenPaymentPool = await this.marketGSN.getTotalTokenPoolSupply(this.token.address);
 
-            const expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
+            const expectedMemeTokensOut = calculateBuyTokensOut(paymentTokensIn, tokenPaymentPool, tokenPool);
 
-            await expect(
-                this.marketGSN.buy(this.token.address, expectedTokensOut.add(1), {
-                    value: ethIn,
-                }),
-            ).to.be.revertedWith("DankBankMarket: Insufficient tokens out.");
+            const methodArgs = [this.token.address, paymentTokensIn, expectedMemeTokensOut.add(1)];
+            const response = await relayFunctionCall(this.wallet, this.forwarder, this.marketGSN, "buy", methodArgs);
+
+            expectEventNotToBeEmitted(response, EVENTS.BUY);
         });
     });
 
     describe("add subsequent liquidity", function () {
         let ratioBefore: BigNumber;
 
-        it("able to add subsequent liquidity", async function () {
+        it.only("able to add subsequent liquidity", async function () {
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
-            const inputAmount = ONE;
-            const poolBalance = await this.token.balanceOf(this.marketGSN.address);
+            const inputPaymentTokenAmount = ONE;
+            const memeTokenPoolBalance = await this.token.balanceOf(this.marketGSN.address);
 
-            const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
+            const expectedMintAmount = inputPaymentTokenAmount.mul(lpTokenSupply).div(memeTokenPoolBalance);
 
-            const ethPoolSupply = await this.marketGSN.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
+            const paymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
+            const paymentTokensToAdd = calculateEthOrTokensToAdd(
+                inputPaymentTokenAmount,
+                paymentTokenPoolSupply,
+                memeTokenPoolBalance,
+            );
 
-            ratioBefore = (await this.marketGSN.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
+            ratioBefore = (await this.marketGSN.virtualTokenPoolSupply(this.token.address)).div(paymentTokenPoolSupply);
 
-            await expect(this.marketGSN.addLiquidity(this.token.address, ONE, ethToAdd, { value: ethToAdd }))
+            const methodArgs = [this.token.address, ONE, inputPaymentTokenAmount, paymentTokensToAdd];
+            const resp = await relayFunctionCall(
+                this.wallet,
+                this.forwarder,
+                this.marketGSN,
+                "addLiquidity",
+                methodArgs,
+            );
+
+            expectEventEmitted(resp, EVENTS.LIQUIDITY_ADDED);
+
+            await expect(
+                this.marketGSN.addLiquidity(this.token.address, ONE, paymentTokensToAdd, { value: paymentTokensToAdd }),
+            )
                 .to.emit(this.marketGSN, "LiquidityAdded")
-                .withArgs(this.signers.admin.address, this.token.address, inputAmount, expectedMintAmount);
+                .withArgs(this.signers.admin.address, this.token.address, inputPaymentTokenAmount, expectedMintAmount);
         });
 
         it("adding liquidity keeps the eth to virtual eth ratio the same", async function () {
@@ -247,7 +269,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             const poolBalance = await this.token.balanceOf(this.marketGSN.address);
 
             const ethPoolSupply = await this.marketGSN.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, ethPoolSupply, poolBalance);
 
             await expect(
                 this.marketGSN.addLiquidity(this.token.address, 1, ethToAdd.add(1), { value: ethToAdd }),
@@ -261,7 +283,7 @@ export function shouldBehaveLikeMarketGSN(): void {
         let prevEthPool: BigNumber;
 
         it("calc sell amount is as expected", async function () {
-            tokensIn = expectedTokensOut.div(2);
+            tokensIn = expectedMemeTokensOut.div(2);
 
             const tokenPool = await this.token.balanceOf(this.marketGSN.address);
             prevEthPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
@@ -287,7 +309,7 @@ export function shouldBehaveLikeMarketGSN(): void {
         });
 
         it("eth out is as expected", async function () {
-            const tokensIn = expectedTokensOut.div(2);
+            const tokensIn = expectedMemeTokensOut.div(2);
             const tokenPool = await this.token.balanceOf(this.marketGSN.address);
             const ethPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
 
@@ -311,7 +333,7 @@ export function shouldBehaveLikeMarketGSN(): void {
         it("test calculateSellTokensIn()", async function () {
             const MAX = 9;
             const MIN = 1;
-            const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
+            const tokensIn = expectedMemeTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
             const tokenPool = await this.token.balanceOf(this.marketGSN.address);
             const ethPool = await this.marketGSN.getTotalEthPoolSupply(this.token.address);
 

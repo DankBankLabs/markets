@@ -29,11 +29,11 @@ export async function deployMock(contractName: string, connect?: Signer): Promis
 
 export async function deployProxy<Contract>(
     contractName: string,
-    forwarderAddress: string,
     signer: Signer,
+    args: Array<unknown> = [],
 ): Promise<Contract> {
     const MarketGSNFactory = await ethers.getContractFactory(contractName, signer);
-    return upgrades.deployProxy(MarketGSNFactory, ["un-used uri", forwarderAddress], {
+    return upgrades.deployProxy(MarketGSNFactory, [...args], {
         initializer: "init",
     }) as unknown as Contract;
 }

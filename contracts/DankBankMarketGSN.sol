@@ -23,9 +23,8 @@ contract DankBankMarketGSN is
 
     // TODO: ideally the constructor makes the implementation contract unusable
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(address paymentTokenAddress) initializer {
+    constructor() initializer {
         __ERC1155_init("uri for initializing the implementation contract");
-        paymentToken = paymentTokenAddress;
     }
 
     function init(
@@ -46,12 +45,14 @@ contract DankBankMarketGSN is
     ) external nonReentrant {
         require(virtualTokenPoolSupply[memeToken] == 0, "DankBankMarket: pool already initialized");
         require(
-            inputAmount > 0 && initVirtualTokenSupply > 0,
+            memeTokenInputAmount > 0 && initVirtualTokenSupply > 0,
             "DankBankMarket: initial pool amounts must be greater than 0."
         );
 
-        IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), inputAmount);
-        IERC20Upgradeable(paymentToken).safeTransferFrom(_msgSender(), address(this), paymentTokenInputAmount);
+        IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), memeTokenInputAmount);
+        if (paymentTokenInputAmount > 0) {
+            IERC20Upgradeable(paymentToken).safeTransferFrom(_msgSender(), address(this), paymentTokenInputAmount);
+        }
 
         uint256 tokenId = getTokenId(memeToken);
 
@@ -61,7 +62,7 @@ contract DankBankMarketGSN is
         uint256 sharesMinted = initVirtualTokenSupply + paymentTokenInputAmount;
         _mint(_msgSender(), tokenId, sharesMinted, "");
 
-        emit LiquidityAdded(_msgSender(), memeToken, inputAmount, sharesMinted);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, sharesMinted);
     }
 
     function addLiquidity(
@@ -80,9 +81,9 @@ contract DankBankMarketGSN is
 
         uint256 tokenId = getTokenId(memeToken);
 
-        uint256 prevPoolBalance = IERC20Upgradeable(memeToken).balanceOf(address(this)) - inputAmount;
+        uint256 prevPoolBalance = IERC20Upgradeable(memeToken).balanceOf(address(this)) - memeTokenInputAmount;
 
-        uint256 paymentTokensAdded = (inputAmount * tokenPoolSupply[memeToken]) / prevPoolBalance;
+        uint256 paymentTokensAdded = (memeTokenInputAmount * tokenPoolSupply[memeToken]) / prevPoolBalance;
 
         // ensure adding liquidity in specific price range
         require(paymentTokenInputAmount >= paymentTokensAdded, "DankBankMarket: insufficient payment token supplied.");
@@ -93,10 +94,10 @@ contract DankBankMarketGSN is
 
         tokenPoolSupply[memeToken] += paymentTokensAdded;
 
-        uint256 virtualTokensAdded = (inputAmount * virtualTokenPoolSupply[memeToken]) / prevPoolBalance;
+        uint256 virtualTokensAdded = (memeTokenInputAmount * virtualTokenPoolSupply[memeToken]) / prevPoolBalance;
         virtualTokenPoolSupply[memeToken] += virtualTokensAdded;
 
-        uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
+        uint256 mintAmount = (memeTokenInputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
         _mint(_msgSender(), tokenId, mintAmount, "");
 
         // refund dust eth if any
@@ -104,7 +105,7 @@ contract DankBankMarketGSN is
             IERC20Upgradeable(paymentToken).safeTransferFrom(address(this), _msgSender(), memeTokenInputAmount);
         }
 
-        emit LiquidityAdded(_msgSender(), memeToken, inputAmount, mintAmount);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, mintAmount);
     }
 
     function removeLiquidity(
