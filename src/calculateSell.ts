@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 
 import { FEE_MULTIPLIER, MULTIPLIER_SUB_ONE } from "./constants";
 
-export const calculateSellEthOut = (
+export const calculateSellEthOrTokenOut = (
     tokensIn: BigNumber,
     tokenPool: BigNumber,
     ethPool: BigNumber

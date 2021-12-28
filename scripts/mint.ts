@@ -3,7 +3,7 @@ import { BigNumber, constants, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { TASK_COMPILE_SOLIDITY_COMPILE } from "hardhat/builtin-tasks/task-names";
 import { ONE } from "../test/helpers";
-import { calculateBuyTokensOut, calculateSellEthOut } from "../src";
+import { calculateBuyTokensOut, calculateSellEthOrTokenOut } from "../src";
 
 /*
 const localVault = "0x0F68A202C3C9d9e63e49F14D6c52FCad8A98c194";
@@ -40,7 +40,7 @@ async function buyTokens(fractionalizedToken: Contract, market: Contract) {
 async function sellTokens(tokensIn: BigNumber, fractionalizedToken: Contract, market: Contract) {
     const tokenPool = await fractionalizedToken.balanceOf(market.address);
     const prevEthPool = await market.getTotalEthPoolSupply(fractionalizedToken.address);
-    const expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, prevEthPool);
+    const expectedEthOut = calculateSellEthOrTokenOut(tokensIn, tokenPool, prevEthPool);
     await market.sell(fractionalizedToken.address, tokensIn, expectedEthOut);
 }
 

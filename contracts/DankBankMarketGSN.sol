@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "hardhat/console.sol";
 
 contract DankBankMarketGSN is
     DankBankMarketData,
@@ -163,7 +164,6 @@ contract DankBankMarketGSN is
         uint256 paymentTokensOut = calculateSellPaymentTokenOut(memeToken, memeTokensIn);
 
         require(paymentTokensOut >= minPaymentTokensOut, "DankBankMarket: Insufficient payment tokens out.");
-
         require(
             tokenPoolSupply[memeToken] >= paymentTokensOut,
             "DankBankMarket: Market has insufficient liquidity for the trade."
@@ -172,8 +172,9 @@ contract DankBankMarketGSN is
             tokenPoolSupply[memeToken] -= paymentTokensOut;
         }
 
+        console.log("MADE IT HERE");
         IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), memeTokensIn);
-        IERC20Upgradeable(paymentToken).safeTransferFrom(address(this), _msgSender(), paymentTokensOut);
+        IERC20Upgradeable(paymentToken).safeTransfer(_msgSender(), paymentTokensOut);
 
         emit DankBankSell(_msgSender(), memeToken, paymentTokensOut, memeTokensIn);
     }
