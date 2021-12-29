@@ -13,10 +13,6 @@ import { signMetaTxRequest } from "../helpers/signMetaTxRequest";
 import { relay } from "../helpers/relay";
 import { TransactionReceipt } from "@ethersproject/providers";
 
-function expectEventEmitted(transactionReceipt, eventName: string) {
-    expect(transactionReceipt.events.some((event: any) => "event" in event && event?.event === eventName)).to.be.true;
-}
-
 function expectEventNotToBeEmitted(transactionReceipt, eventName: string) {
     expect(transactionReceipt.events.find((event: any) => "event" in event && event?.event === eventName)).to.be
         .undefined;
@@ -70,7 +66,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             expect(lpShares.toString()).to.equal(ZERO.toString());
         });
 
-        it.only("adds liquidity using meta transaction", async function () {
+        it("adds liquidity using meta transaction", async function () {
             await this.token.approve(this.marketGSN.address, constants.MaxUint256);
             await this.paymentToken.approve(this.marketGSN.address, constants.MaxUint256);
 
@@ -154,7 +150,7 @@ export function shouldBehaveLikeMarketGSN(): void {
         let tokenBalanceBeforeTrade: BigNumber;
         const paymentTokensIn = ONE;
 
-        it.only("allows buying tokens", async function () {
+        it("allows buying tokens", async function () {
             const memeTokenPool = await this.token.balanceOf(this.marketGSN.address);
             const paymentTokenPool = await this.marketGSN.getTotalTokenPoolSupply(this.token.address);
 
@@ -203,7 +199,7 @@ export function shouldBehaveLikeMarketGSN(): void {
     describe("add subsequent liquidity", function () {
         let ratioBefore: BigNumber;
 
-        it.only("able to add subsequent liquidity", async function () {
+        it("able to add subsequent liquidity", async function () {
             const inputPaymentTokenAmount = ONE;
             const memeTokenPoolBalance = await this.token.balanceOf(this.marketGSN.address);
             const paymentTokenBalanceBefore = await this.paymentToken.balanceOf(this.marketGSN.address);
@@ -379,7 +375,7 @@ export function shouldBehaveLikeMarketGSN(): void {
         let expectedMemeTokenBalanceAfter: BigNumber;
         let paymentTokenRatioBefore: BigNumber;
 
-        it.only("able to remove liquidity", async function () {
+        it("able to remove liquidity", async function () {
             const userMemeTokenBalanceBefore = await this.token.balanceOf(this.wallet.address);
             const userPaymentTokenBalanceBefore = await this.paymentToken.balanceOf(this.wallet.address);
 
@@ -417,7 +413,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             );
         });
 
-        it.only("keeps payment token to virtual payment token ratio the same on removing liquidity", async function () {
+        it("keeps payment token to virtual payment token ratio the same on removing liquidity", async function () {
             const paymentTokenRatioAfter = (await this.marketGSN.virtualTokenPoolSupply(this.token.address)).div(
                 await this.marketGSN.tokenPoolSupply(this.token.address),
             );
@@ -425,13 +421,13 @@ export function shouldBehaveLikeMarketGSN(): void {
             expect(paymentTokenRatioBefore.toString()).to.equal(paymentTokenRatioAfter.toString());
         });
 
-        it.only("meme token balance updated with tokens removed from liquidity", async function () {
+        it("meme token balance updated with tokens removed from liquidity", async function () {
             const tokenBalance = await this.token.balanceOf(this.wallet.address);
 
             expect(tokenBalance.toString()).to.equal(expectedMemeTokenBalanceAfter.toString());
         });
 
-        it.only("lp tokens were burned", async function () {
+        it("lp tokens were burned", async function () {
             const expectedLpTokenSupply = lpTokenBalance.sub(burnAmount);
 
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
@@ -439,7 +435,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             expect(lpTokenSupply.toString()).to.equal(expectedLpTokenSupply.toString());
         });
 
-        it.only("reverts trying to burn more tokens than in pool and/or users balance", async function () {
+        it("reverts trying to burn more tokens than in pool and/or users balance", async function () {
             const userLPTokenSupplyBefore = await this.marketGSN.lpTokenSupply(this.token.address);
 
             const methodArgs = [this.token.address, userLPTokenSupplyBefore.add(ONE), 0, 0];
@@ -457,7 +453,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             expectEventNotToBeEmitted(response, EVENTS.LIQUIDITY_REMOVED);
         });
 
-        it.only("reverts when receiving less tokens than desired", async function () {
+        it("reverts when receiving less tokens than desired", async function () {
             const burnAmount = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
 
@@ -482,7 +478,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             expectEventNotToBeEmitted(response, EVENTS.LIQUIDITY_REMOVED);
         });
 
-        it.only("reverts when receiving less eth than desired", async function () {
+        it("reverts when receiving less eth than desired", async function () {
             const burnAmount = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
 
@@ -507,7 +503,7 @@ export function shouldBehaveLikeMarketGSN(): void {
             expectEventNotToBeEmitted(response, EVENTS.LIQUIDITY_REMOVED);
         });
 
-        it.only("able to remove rest of liquidity", async function () {
+        it("able to remove rest of liquidity", async function () {
             const burnAmount = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
 
