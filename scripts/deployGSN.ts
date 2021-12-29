@@ -11,7 +11,7 @@ async function main() {
     const MarketGSNFactory = await ethers.getContractFactory("DankBankMarketGSN");
 
     const forwarder = await ForwarderFactory.deploy();
-    console.log(`Forwarder Address: ${forwarder.address}`);
+    console.log(`MinimalForwarder Address: ${forwarder.address}`);
 
     const chainId = await deployer.getChainId();
     const usdcContractAddress = USDC_CONTRACT_ADDRESS[CHAIN_ID_TO_NAME[chainId]];
