@@ -2,9 +2,14 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { constants, BigNumber } from "ethers";
 
-import { ONE, deploy } from "./helpers";
-import { TestERC20 } from "../typechain";
-import { calculateBuyTokensOut, calculateEthToAdd, calculateSellEthOut, calculateSellTokensIn } from "../src";
+import { ONE, deploy } from "../helpers";
+import { TestERC20 } from "../../typechain";
+import {
+    calculateBuyTokensOut,
+    calculateEthOrTokensToAdd,
+    calculateSellEthOrTokenOut,
+    calculateSellTokensIn,
+} from "../../src";
 
 export function shouldBehaveLikeMarket(): void {
     let expectedTokensOut: BigNumber;
@@ -103,8 +108,8 @@ export function shouldBehaveLikeMarket(): void {
             const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
 
             expect(ethPoolSupply.toString()).to.equal(ethPoolSupply.toString());
-        })
-    })
+        });
+    });
 
     describe("buy tokens", function () {
         it("calc buy amount is as expected", async function () {
@@ -180,7 +185,7 @@ export function shouldBehaveLikeMarket(): void {
             const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
 
             const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, ethPoolSupply, poolBalance);
 
             ratioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
 
@@ -208,7 +213,7 @@ export function shouldBehaveLikeMarket(): void {
             const poolBalance = await this.token.balanceOf(this.market.address);
 
             const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthToAdd(inputAmount, ethPoolSupply, poolBalance);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, ethPoolSupply, poolBalance);
 
             await expect(
                 this.market.addLiquidity(this.token.address, 1, ethToAdd.add(1), { value: ethToAdd }),
@@ -227,7 +232,7 @@ export function shouldBehaveLikeMarket(): void {
             const tokenPool = await this.token.balanceOf(this.market.address);
             prevEthPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, prevEthPool);
+            expectedEthOut = calculateSellEthOrTokenOut(tokensIn, tokenPool, prevEthPool);
 
             const sellAmount = await this.market.calculateSellEthOut(this.token.address, tokensIn);
             expect(sellAmount.toString()).to.equal(expectedEthOut.toString());
@@ -252,7 +257,7 @@ export function shouldBehaveLikeMarket(): void {
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
+            expectedEthOut = calculateSellEthOrTokenOut(tokensIn, tokenPool, ethPool);
 
             const ethBefore = await ethers.provider.getBalance(this.signers.admin.address);
 
@@ -269,14 +274,14 @@ export function shouldBehaveLikeMarket(): void {
             expect(ethAfter.toString()).to.equal(expectedEthAfter.toString());
         });
 
-        it("test calculateSellTokensIn()" , async function () {
+        it("test calculateSellTokensIn()", async function () {
             const MAX = 9;
             const MIN = 1;
             const tokensIn = expectedTokensOut.div(Math.floor(Math.random() * MAX) + MIN);
             const tokenPool = await this.token.balanceOf(this.market.address);
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
-            expectedEthOut = calculateSellEthOut(tokensIn, tokenPool, ethPool);
+            expectedEthOut = calculateSellEthOrTokenOut(tokensIn, tokenPool, ethPool);
             const expectedTokensIn = calculateSellTokensIn(expectedEthOut, tokenPool, ethPool);
 
             expect(expectedTokensIn.toString()).to.equal(tokensIn.toString());

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "./DankBankMarketData.sol";
+import "./DankBankMarketGSNData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
@@ -27,141 +27,167 @@ contract DankBankMarketGSN is
         __ERC1155_init("uri for initializing the implementation contract");
     }
 
-    function init(string memory uri, address trustedForwarder) public initializer {
+    function init(
+        string memory uri,
+        address trustedForwarder,
+        address paymentTokenAddress
+    ) public initializer {
         __ERC2771Context_init(trustedForwarder);
         __ERC1155_init(uri);
+        paymentToken = paymentTokenAddress;
     }
 
     function initPool(
-        address token,
-        uint256 inputAmount,
-        uint256 initVirtualEthSupply
-    ) external payable nonReentrant {
-        require(virtualEthPoolSupply[token] == 0, "DankBankMarket: pool already initialized");
+        address memeToken,
+        uint256 memeTokenInputAmount,
+        uint256 paymentTokenInputAmount,
+        uint256 initVirtualTokenSupply
+    ) external nonReentrant {
+        require(virtualTokenPoolSupply[memeToken] == 0, "DankBankMarket: pool already initialized");
         require(
-            inputAmount > 0 && initVirtualEthSupply > 0,
+            memeTokenInputAmount > 0 && initVirtualTokenSupply > 0,
             "DankBankMarket: initial pool amounts must be greater than 0."
         );
 
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
+        IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), memeTokenInputAmount);
+        if (paymentTokenInputAmount > 0) {
+            IERC20Upgradeable(paymentToken).safeTransferFrom(_msgSender(), address(this), paymentTokenInputAmount);
+        }
 
-        uint256 tokenId = getTokenId(token);
+        uint256 tokenId = getTokenId(memeToken);
 
-        ethPoolSupply[token] += msg.value;
-        virtualEthPoolSupply[token] = initVirtualEthSupply;
+        tokenPoolSupply[memeToken] += paymentTokenInputAmount;
+        virtualTokenPoolSupply[memeToken] = initVirtualTokenSupply;
 
-        uint256 sharesMinted = initVirtualEthSupply + msg.value;
+        uint256 sharesMinted = initVirtualTokenSupply + paymentTokenInputAmount;
         _mint(_msgSender(), tokenId, sharesMinted, "");
 
-        emit LiquidityAdded(_msgSender(), token, inputAmount, sharesMinted);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, sharesMinted);
     }
 
     function addLiquidity(
-        address token,
-        uint256 inputAmount,
-        uint256 minEthAdded
-    ) external payable nonReentrant {
-        require(virtualEthPoolSupply[token] > 0, "DankBankMarket: pool must be initialized before adding liquidity");
+        address memeToken,
+        uint256 memeTokenInputAmount,
+        uint256 paymentTokenInputAmount,
+        uint256 minPaymentTokensAdded
+    ) external nonReentrant {
+        require(
+            virtualTokenPoolSupply[memeToken] > 0,
+            "DankBankMarket: pool must be initialized before adding liquidity"
+        );
 
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), inputAmount);
+        IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), memeTokenInputAmount);
+        IERC20Upgradeable(paymentToken).safeTransferFrom(_msgSender(), address(this), paymentTokenInputAmount);
 
-        uint256 tokenId = getTokenId(token);
+        uint256 tokenId = getTokenId(memeToken);
 
-        uint256 prevPoolBalance = IERC20Upgradeable(token).balanceOf(address(this)) - inputAmount;
+        uint256 prevPoolBalance = IERC20Upgradeable(memeToken).balanceOf(address(this)) - memeTokenInputAmount;
 
-        uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
+        uint256 paymentTokensAdded = (memeTokenInputAmount * tokenPoolSupply[memeToken]) / prevPoolBalance;
 
         // ensure adding liquidity in specific price range
-        require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
-        require(ethAdded >= minEthAdded, "DankBankMarket: ETH supplied less than minimum required.");
+        require(paymentTokenInputAmount >= paymentTokensAdded, "DankBankMarket: insufficient payment token supplied.");
+        require(
+            paymentTokensAdded >= minPaymentTokensAdded,
+            "DankBankMarket: Payment token supplied less than minimum required."
+        );
 
-        ethPoolSupply[token] += ethAdded;
+        tokenPoolSupply[memeToken] += paymentTokensAdded;
 
-        uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
-        virtualEthPoolSupply[token] += virtualEthAdded;
+        uint256 virtualTokensAdded = (memeTokenInputAmount * virtualTokenPoolSupply[memeToken]) / prevPoolBalance;
+        virtualTokenPoolSupply[memeToken] += virtualTokensAdded;
 
-        uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
+        uint256 mintAmount = (memeTokenInputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
         _mint(_msgSender(), tokenId, mintAmount, "");
 
         // refund dust eth if any
-        if (msg.value > ethAdded) {
-            (bool success, ) = _msgSender().call{ value: msg.value - ethAdded }("");
-            require(success, "DankBankMarket: Transfer failed.");
+        if (paymentTokenInputAmount > paymentTokensAdded) {
+            IERC20Upgradeable(paymentToken).safeTransferFrom(address(this), _msgSender(), memeTokenInputAmount);
         }
 
-        emit LiquidityAdded(_msgSender(), token, inputAmount, mintAmount);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, mintAmount);
     }
 
     function removeLiquidity(
-        address token,
+        address memeToken,
         uint256 burnAmount,
-        uint256 minTokens,
-        uint256 minEth
+        uint256 minMemeTokens,
+        uint256 minPaymentTokens
     ) external nonReentrant {
-        uint256 tokenId = getTokenId(token);
+        uint256 tokenId = getTokenId(memeToken);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpSupply;
-        ethPoolSupply[token] -= ethRemoved;
-        require(ethRemoved >= minEth, "DankBankMarket: ETH out is less than minimum ETH specified");
+        uint256 paymentTokensRemoved = (burnAmount * tokenPoolSupply[memeToken]) / lpSupply;
+        tokenPoolSupply[memeToken] -= paymentTokensRemoved;
+        require(
+            paymentTokensRemoved >= minPaymentTokens,
+            "DankBankMarket: Payment tokens out is less than minimum tokens specified"
+        );
 
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
+        virtualTokenPoolSupply[memeToken] -= (burnAmount * virtualTokenPoolSupply[memeToken]) / lpSupply;
 
-        uint256 tokensRemoved = (burnAmount * IERC20Upgradeable(token).balanceOf(address(this))) / lpSupply;
-        require(tokensRemoved >= minTokens, "DankBankMarket: Token out is less than minimum specified");
+        uint256 memeTokensRemoved = (burnAmount * IERC20Upgradeable(memeToken).balanceOf(address(this))) / lpSupply;
+        require(memeTokensRemoved >= minMemeTokens, "DankBankMarket: Meme token out is less than minimum specified");
 
         // burn will revert if burn amount exceeds balance
         _burn(_msgSender(), tokenId, burnAmount);
 
         // XXX: _burn must by attempted before transfers to prevent reentrancy
-        IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensRemoved);
+        IERC20Upgradeable(memeToken).safeTransfer(_msgSender(), memeTokensRemoved);
+        IERC20Upgradeable(paymentToken).safeTransfer(_msgSender(), paymentTokensRemoved);
 
-        (bool success, ) = _msgSender().call{ value: ethRemoved }("");
-        require(success, "DankBankMarket: Transfer failed.");
-
-        emit LiquidityRemoved(_msgSender(), token, tokensRemoved, ethRemoved, burnAmount);
+        emit LiquidityRemoved(_msgSender(), memeToken, memeTokensRemoved, paymentTokensRemoved, burnAmount);
     }
 
-    function buy(address token, uint256 minTokensOut) external payable nonReentrant {
-        uint256 tokensOut = calculateBuyTokensOut(token, msg.value);
+    function buy(
+        address memeToken,
+        uint256 paymentTokensAmount,
+        uint256 minMemeTokensOut
+    ) external nonReentrant {
+        uint256 memeTokensOut = calculateBuyTokensOut(memeToken, paymentTokensAmount);
 
-        ethPoolSupply[token] += msg.value;
+        tokenPoolSupply[memeToken] += paymentTokensAmount;
 
-        require(tokensOut >= minTokensOut, "DankBankMarket: Insufficient tokens out.");
-        IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensOut);
+        require(memeTokensOut >= minMemeTokensOut, "DankBankMarket: Insufficient meme tokens out.");
+        IERC20Upgradeable(memeToken).safeTransfer(_msgSender(), memeTokensOut);
+        IERC20Upgradeable(paymentToken).safeTransferFrom(_msgSender(), address(this), paymentTokensAmount);
 
-        emit DankBankBuy(_msgSender(), token, msg.value, tokensOut);
+        emit DankBankBuy(_msgSender(), memeToken, paymentTokensAmount, memeTokensOut);
     }
 
     function sell(
-        address token,
-        uint256 tokensIn,
-        uint256 minEthOut
+        address memeToken,
+        uint256 memeTokensIn,
+        uint256 minPaymentTokensOut
     ) external nonReentrant {
-        uint256 ethOut = calculateSellEthOut(token, tokensIn);
+        uint256 paymentTokensOut = calculateSellPaymentTokenOut(memeToken, memeTokensIn);
 
-        require(ethOut >= minEthOut, "DankBankMarket: Insufficient eth out.");
-
-        require(ethPoolSupply[token] >= ethOut, "DankBankMarket: Market has insufficient liquidity for the trade.");
+        require(paymentTokensOut >= minPaymentTokensOut, "DankBankMarket: Insufficient payment tokens out.");
+        require(
+            tokenPoolSupply[memeToken] >= paymentTokensOut,
+            "DankBankMarket: Market has insufficient liquidity for the trade."
+        );
         unchecked {
-            ethPoolSupply[token] -= ethOut;
+            tokenPoolSupply[memeToken] -= paymentTokensOut;
         }
 
-        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), tokensIn);
+        IERC20Upgradeable(memeToken).safeTransferFrom(_msgSender(), address(this), memeTokensIn);
+        IERC20Upgradeable(paymentToken).safeTransfer(_msgSender(), paymentTokensOut);
 
-        (bool success, ) = _msgSender().call{ value: ethOut }("");
-        require(success, "DankBankMarket: Transfer failed.");
-
-        emit DankBankSell(_msgSender(), token, ethOut, tokensIn);
+        emit DankBankSell(_msgSender(), memeToken, paymentTokensOut, memeTokensIn);
     }
 
-    function calculateBuyTokensOut(address token, uint256 ethIn) public view returns (uint256 tokensOut) {
+    function calculateBuyTokensOut(address memeToken, uint256 paymentTokensAmount)
+        public
+        view
+        returns (uint256 memeTokensOut)
+    {
         /**
         Logic below is a simplified version of:
 
         uint256 fee = ethIn / FEE_MULTIPLIER;
 
-        uint256 ethSupply = getTotalEthPoolSupply(token);
+        uint256 ethSupply = getTotalTokenPoolSupply(token);
 
         uint256 invariant = ethSupply * tokenPool;
 
@@ -169,34 +195,42 @@ contract DankBankMarketGSN is
         tokensOut = tokenPool - newTokenPool;
         */
 
-        uint256 scaledTokenPool = IERC20Upgradeable(token).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
-        uint256 scaledEthPool = getTotalEthPoolSupply(token) * FEE_MULTIPLIER;
+        uint256 scaledMemeTokenPool = IERC20Upgradeable(memeToken).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
+        uint256 scaledPaymentTokenPool = getTotalTokenPoolSupply(memeToken) * FEE_MULTIPLIER;
 
-        tokensOut = (scaledTokenPool * ethIn) / (scaledEthPool + MULTIPLIER_SUB_ONE * ethIn);
+        memeTokensOut =
+            (scaledMemeTokenPool * paymentTokensAmount) /
+            (scaledPaymentTokenPool + MULTIPLIER_SUB_ONE * paymentTokensAmount);
     }
 
-    function calculateSellEthOut(address token, uint256 tokensIn) public view returns (uint256 ethOut) {
+    function calculateSellPaymentTokenOut(address memeToken, uint256 memeTokensIn)
+        public
+        view
+        returns (uint256 paymentTokensOut)
+    {
         /**
         Logic below is a simplified version of:
 
         uint256 fee = tokensIn / FEE_MULTIPLIER;
 
         uint256 tokenPool = IERC20Upgradeable(token).balanceOf(address(this));
-        uint256 ethPool = getTotalEthPoolSupply(token);
+        uint256 ethPool = getTotalTokenPoolSupply(token);
         uint256 invariant = ethPool * tokenPool;
 
         uint256 newEthPool = invariant / ((tokenPool + tokensIn) - fee);
         ethOut = ethPool - newEthPool;
         */
 
-        uint256 scaledEthPool = getTotalEthPoolSupply(token) * MULTIPLIER_SUB_ONE;
-        uint256 scaledTokenPool = IERC20Upgradeable(token).balanceOf(address(this)) * FEE_MULTIPLIER;
+        uint256 scaledPaymentTokenPool = getTotalTokenPoolSupply(memeToken) * MULTIPLIER_SUB_ONE;
+        uint256 scaledMemeTokenPool = IERC20Upgradeable(memeToken).balanceOf(address(this)) * FEE_MULTIPLIER;
 
-        ethOut = (scaledEthPool * tokensIn) / (scaledTokenPool + MULTIPLIER_SUB_ONE * tokensIn);
+        paymentTokensOut =
+            (scaledPaymentTokenPool * memeTokensIn) /
+            (scaledMemeTokenPool + MULTIPLIER_SUB_ONE * memeTokensIn);
     }
 
-    function getTotalEthPoolSupply(address token) public view returns (uint256) {
-        return virtualEthPoolSupply[token] + ethPoolSupply[token];
+    function getTotalTokenPoolSupply(address memeToken) public view returns (uint256) {
+        return virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken];
     }
 
     function getTokenId(address token) public pure returns (uint256) {

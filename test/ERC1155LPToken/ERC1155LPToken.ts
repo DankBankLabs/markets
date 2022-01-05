@@ -2,8 +2,8 @@ import hre from "hardhat";
 import { Artifact } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import { TestERC1155 } from "../typechain";
-import { Signers } from "../types";
+import { TestERC1155 } from "../../typechain";
+import { Signers } from "../../types";
 import { shouldBehaveLikeERC115TokenSupply } from "./ERC1155LPToken.behavior";
 
 const { deployContract } = hre.waffle;
@@ -12,7 +12,7 @@ describe("Unit tests", function () {
     before(async function () {
         this.signers = {} as Signers;
 
-        const signers: SignerWithAddress[] = ((await hre.ethers.getSigners()) as unknown) as SignerWithAddress[];
+        const signers: SignerWithAddress[] = (await hre.ethers.getSigners()) as unknown as SignerWithAddress[];
         this.signers.admin = signers[0];
     });
 

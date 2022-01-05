@@ -84,6 +84,7 @@ const config: HardhatUserConfig = {
         enabled: process.env.REPORT_GAS ? true : false,
         excludeContracts: ["Test"],
         src: "./contracts",
+        coinmarketcap: process.env.COINMARKETCAP_API_KEY,
     },
     networks: {
         hardhat: {
