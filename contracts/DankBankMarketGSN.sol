@@ -62,7 +62,7 @@ contract DankBankMarketGSN is
         uint256 sharesMinted = initVirtualTokenSupply + paymentTokenInputAmount;
         _mint(_msgSender(), tokenId, sharesMinted, "");
 
-        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, sharesMinted);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, paymentTokenInputAmount, sharesMinted);
     }
 
     function addLiquidity(

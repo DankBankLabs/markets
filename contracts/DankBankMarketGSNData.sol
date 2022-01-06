@@ -6,7 +6,13 @@ contract DankBankMarketData {
     mapping(address => uint256) public tokenPoolSupply;
     address public paymentToken;
 
-    event LiquidityAdded(address indexed funder, address memeToken, uint256 amountAdded, uint256 sharesMinted);
+    event LiquidityAdded(
+        address indexed funder,
+        address memeToken,
+        uint256 memeTokensAdded,
+        uint256 paymentTokensAdded,
+        uint256 sharesMinted
+    );
 
     event LiquidityRemoved(
         address indexed funder,
