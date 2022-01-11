@@ -105,7 +105,7 @@ contract DankBankMarketGSN is
             IERC20Upgradeable(paymentToken).safeTransferFrom(address(this), _msgSender(), memeTokenInputAmount);
         }
 
-        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, mintAmount);
+        emit LiquidityAdded(_msgSender(), memeToken, memeTokenInputAmount, paymentTokenInputAmount, mintAmount);
     }
 
     function removeLiquidity(

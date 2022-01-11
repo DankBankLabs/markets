@@ -28,6 +28,8 @@ const chainIds = {
     rinkeby: 4,
     ropsten: 3,
     localhost: 31337,
+    matic: 137,
+    mumbai: 80001,
 };
 
 // Ensure that we have all the environment variables we need.
