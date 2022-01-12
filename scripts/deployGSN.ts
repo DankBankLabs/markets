@@ -15,6 +15,7 @@ async function main() {
 
     const chainId = await deployer.getChainId();
     const usdcContractAddress = USDC_CONTRACT_ADDRESS[CHAIN_ID_TO_NAME[chainId]];
+    console.log("USDC Contract Address:", usdcContractAddress);
 
     if (!usdcContractAddress) {
         console.log("No USDC contract address for chainId:", chainId);

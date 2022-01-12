@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-contract DankBankMarketData {
+contract DankBankMarketGSNData {
     mapping(address => uint256) public virtualTokenPoolSupply;
     mapping(address => uint256) public tokenPoolSupply;
     address public paymentToken;

@@ -19,6 +19,24 @@ import { NetworkUserConfig } from "hardhat/types";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
+const infuraApiKey = process.env.INFURA_API_KEY;
+if (!infuraApiKey) {
+    throw new Error("Please set your INFURA_API_KEY in a .env file");
+}
+
+const infuraUrl = Object.freeze({
+    ganache: "https://ganache.infura.io/v3/" + infuraApiKey,
+    goerli: "https://goerli.infura.io/v3/" + infuraApiKey,
+    hardhat: "https://hardhat.infura.io/v3/" + infuraApiKey,
+    kovan: "https://kovan.infura.io/v3/" + infuraApiKey,
+    mainnet: "https://mainnet.infura.io/v3/" + infuraApiKey,
+    rinkeby: "https://rinkeby.infura.io/v3/" + infuraApiKey,
+    ropsten: "https://ropsten.infura.io/v3/" + infuraApiKey,
+    localhost: "https://localhost.infura.io/v3/" + infuraApiKey,
+    matic: "https://polygon-mainnet.infura.io/v3/" + infuraApiKey,
+    mumbai: "https://polygon-mumbai.infura.io/v3/" + infuraApiKey,
+});
+
 const chainIds = {
     ganache: 1337,
     goerli: 5,
@@ -38,11 +56,6 @@ if (!mnemonic) {
     throw new Error("Please set your MNEMONIC in a .env file");
 }
 
-const infuraApiKey = process.env.INFURA_API_KEY;
-if (!infuraApiKey) {
-    throw new Error("Please set your INFURA_API_KEY in a .env file");
-}
-
 const defenderApiKey = process.env.DEFENDER_API_KEY;
 const defenderSecret = process.env.DEFENDER_SECRET;
 
@@ -60,7 +73,7 @@ const etherscanKey = process.env.ETHERSCAN_API_KEY;
 const etherscanSettings = { etherscan: { apiKey: etherscanKey } };
 
 function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig {
-    let url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+    let url: string = infuraUrl[network];
 
     if (network === "localhost") url = "http://localhost:8545";
     return {
@@ -108,6 +121,8 @@ const config: HardhatUserConfig = {
         rinkeby: createNetworkConfig("rinkeby"),
         ropsten: createNetworkConfig("ropsten"),
         mainnet: createNetworkConfig("mainnet"),
+        matic: createNetworkConfig("matic"),
+        mumbai: createNetworkConfig("mumbai"),
     },
     paths: {
         artifacts: "./artifacts",

@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract DankBankMarketGSN is
-    DankBankMarketData,
+    DankBankMarketGSNData,
     Initializable,
     ERC2771ContextUpgradeable,
     ERC1155LPTokenUpgradeable,

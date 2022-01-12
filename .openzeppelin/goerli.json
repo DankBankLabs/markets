@@ -49,6 +49,11 @@
       "address": "0x81A47880BefC90BdaE64C7BE3a533156C01Eac48",
       "txHash": "0x42f09f6574846bbcd26793c490f955052beafc82dd64d1a90c7dcb0e87c3d55b",
       "kind": "transparent"
+    },
+    {
+      "address": "0x5898b8A25bb736E179Dbb8750d020A9777Fead99",
+      "txHash": "0xe52430a50c0f693421d4a505e504c93245eb21f0dd865e97aa2d112546c2aff3",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1259,6 +1264,148 @@
     "7a9741d66a73120bad47a34c63bcadcd5bc673fcbc7b4d3f49b5492131e80ecf": {
       "address": "0x1475134741B2709864Cd3b54b3a16d1a9168cae5",
       "txHash": "0x50ad46a4a3cb7b69d1032c3d29957cda275f3433b2dca981d7d6821e6a604cf5",
+      "layout": {
+        "storage": [
+          {
+            "contract": "DankBankMarketData",
+            "label": "virtualTokenPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketGSNData.sol:5"
+          },
+          {
+            "contract": "DankBankMarketData",
+            "label": "tokenPoolSupply",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/DankBankMarketGSNData.sol:6"
+          },
+          {
+            "contract": "DankBankMarketData",
+            "label": "paymentToken",
+            "type": "t_address",
+            "src": "contracts/DankBankMarketGSNData.sol:7"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "ERC2771ContextUpgradeable",
+            "label": "_trustedForwarder",
+            "type": "t_address",
+            "src": "contracts/gsn/ERC2771ContextUpgradeable.sol:13"
+          },
+          {
+            "contract": "ERC2771ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "contracts/gsn/ERC2771ContextUpgradeable.sol:47"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:36"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:33"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_uri",
+            "type": "t_string_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:39"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "_tokenSupplies",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:41"
+          },
+          {
+            "contract": "ERC1155LPTokenUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)47_storage",
+            "src": "contracts/ERC1155LPTokenUpgradeable.sol:490"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:68"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_array(t_uint256)47_storage": {
+            "label": "uint256[47]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "5bbd72e4853a8b09d92a32c7a29e05461ea54880169782f556df2697e1256a49": {
+      "address": "0x72EdA0288D0c5D381A29a03bA49caf9E7E862393",
+      "txHash": "0xd8b8b1fc85cc131d1ad235a582cbd04b2bb08b94747e628339bcf97fb7b91b62",
       "layout": {
         "storage": [
           {

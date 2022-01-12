@@ -103,10 +103,10 @@ Deploy the contracts to Hardhat Network:
 $ yarn deploy
 ```
 
-Deploy the contracts to a specific network, such as the Ropsten testnet:
+Deploy the contracts to a specific network, such as the Mainnet testnet:
 
 ```sh
-$ yarn deploy:network ropsten
+$ yarn deploy:mainnet
 ```
 
 ## Syntax Highlighting
