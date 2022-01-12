@@ -109,6 +109,8 @@ Deploy the contracts to a specific network, such as the Mainnet testnet:
 $ yarn deploy:mainnet
 ```
 
+Deployed contract addresses and other information regarding deployments can be found in the `.openzeppelin` folder
+
 ## Syntax Highlighting
 
 If you use VSCode, you can enjoy syntax highlighting for your Solidity code via the
