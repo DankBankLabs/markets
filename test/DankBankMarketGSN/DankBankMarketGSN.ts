@@ -5,6 +5,7 @@ import { deploy, deployProxy } from "../helpers";
 import { DankBankMarketGSN, TestERC20, MinimalForwarder } from "../../typechain";
 import { Signers } from "../../types";
 import { shouldBehaveLikeMarketGSN } from "./DankBankMarketGSN.behavior";
+import { shouldBehaveLikeMarketGSNDirect } from "./DankBankMarketGSNDirect.behavior";
 import { EIP712Domain } from "../helpers/eip712";
 import { Signer, Wallet } from "ethers";
 
@@ -32,7 +33,7 @@ const setup = async (wallet: Wallet, walletSigner: Signer) => {
     };
 };
 
-describe("Market", function () {
+describe("MarketGSN", function () {
     before(async function () {
         this.signers = {} as Signers;
 
@@ -76,4 +77,27 @@ describe("Market", function () {
     });
 
     shouldBehaveLikeMarketGSN();
+});
+
+describe("Direct MarketGSN", function () {
+    before(async function () {
+        this.signers = {} as Signers;
+
+        const signers: SignerWithAddress[] = (await ethers.getSigners()) as unknown as SignerWithAddress[];
+        const wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC as string);
+        const impersonatedSigner = await ethers.getSigner(wallet.address);
+
+        this.wallet = wallet;
+        this.walletSigner = impersonatedSigner;
+        this.signers.other = signers[1];
+
+        const deployment = await setup(this.wallet, this.walletSigner);
+        this.marketGSN = deployment.marketGSN;
+        this.token = deployment.token;
+        this.paymentToken = deployment.paymentToken;
+        console.log("Direct Wallet address:", this.wallet.address);
+        console.log("Direct marketGSN address:", this.marketGSN.address);
+    });
+
+    shouldBehaveLikeMarketGSNDirect();
 });
