@@ -35,7 +35,7 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             );
         });
 
-        it("reverts if initial virtual eth supply is 0", async function () {
+        it("reverts if initial virtual payment token supply is 0", async function () {
             await expect(this.marketGSN.initPool(this.token.address, ONE, 0, 0)).to.be.revertedWith(
                 "DankBankMarket: initial pool amounts must be greater than 0.",
             );
@@ -62,7 +62,7 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             expect(virtualTokenPoolSupply.toString()).to.equal(expectedVirtualTokenSupply.toString());
         });
 
-        it("has the expected eth pool supply", async function () {
+        it("has the expected payment token pool supply", async function () {
             const tokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
 
             expect(tokenPoolSupply.toNumber()).to.equal(0);
@@ -75,12 +75,12 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
         });
     });
 
-    describe("add initial liquidity with an initial eth pool supply", function () {
+    describe("add initial liquidity with an initial payment token pool supply", function () {
         let otherToken: TestERC20;
         const virtualTokenPoolSupply = ONE;
         const tokenPoolSupply = ONE;
 
-        it("adds liquidity using meta transaction", async function () {
+        it("adds liquidity using payment token", async function () {
             otherToken = await deploy<TestERC20>("TestERC20", { args: [], connect: this.walletSigner });
 
             await otherToken.mint(this.wallet.address, ethers.BigNumber.from(10).pow(18).mul(10000));
@@ -237,7 +237,7 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             expect(ratioAfter.toString()).to.equal(ratioBefore.toString());
         });
 
-        it("reverts when not enough eth is supplied as liquidity", async function () {
+        it("reverts when not enough payment tokens is supplied as liquidity", async function () {
             await expect(this.marketGSN.addLiquidity(this.token.address, 1, 0, 0)).to.be.revertedWith(
                 "DankBankMarket: insufficient payment token supplied.",
             );
@@ -480,7 +480,7 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             expect(burnAmount.toString()).to.equal(burnAmountAfter.toString());
         });
 
-        it("reverts when receiving less eth than desired", async function () {
+        it("reverts when receiving less payment tokens than desired", async function () {
             const burnAmount = await this.marketGSN.balanceOf(this.wallet.address, this.token.address);
             const lpTokenSupply = await this.marketGSN.lpTokenSupply(this.token.address);
 
