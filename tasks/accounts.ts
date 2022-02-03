@@ -5,6 +5,8 @@ import { TASK_ACCOUNTS } from "./task-names";
 
 task(TASK_ACCOUNTS, "Prints the list of accounts", async (_taskArgs, hre) => {
     const accounts: SignerWithAddress[] = await hre.ethers.getSigners();
+    const [deployer] = await hre.ethers.getSigners();
+    console.log("Deployer account:", deployer.address);
 
     for (const account of accounts) {
         console.log(await account.getAddress());
