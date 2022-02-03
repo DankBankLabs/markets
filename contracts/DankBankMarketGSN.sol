@@ -32,6 +32,7 @@ contract DankBankMarketGSN is
         address trustedForwarder,
         address paymentTokenAddress
     ) public initializer {
+        require(paymentTokenAddress != address(0), "paymentTokenAddress cannot be 0");
         __ERC2771Context_init(trustedForwarder);
         __ERC1155_init(uri);
         paymentToken = paymentTokenAddress;
