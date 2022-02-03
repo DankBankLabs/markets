@@ -18,7 +18,7 @@ contract DankBankMarketGSN is
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
+    uint256 public constant FEE_MULTIPLIER = 311; // 0.2% fee on trades
     uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
     // TODO: ideally the constructor makes the implementation contract unusable

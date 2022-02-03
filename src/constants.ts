@@ -1,4 +1,4 @@
-export const FEE_MULTIPLIER = 500;
+export const FEE_MULTIPLIER = 311;
 export const MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
 export const USDC_CONTRACT_ADDRESS = Object.freeze({

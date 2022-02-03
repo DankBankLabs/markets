@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
-    uint256 public constant FEE_MULTIPLIER = 500; // 0.2% fee on trades
+    uint256 public constant FEE_MULTIPLIER = 311; // ~ 0.42069% fee on trades
     uint256 public constant MULTIPLIER_SUB_ONE = FEE_MULTIPLIER - 1;
 
     // TODO: ideally the constructor makes the implementation contract unusable
