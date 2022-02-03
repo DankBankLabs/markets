@@ -29,6 +29,7 @@
         "@typescript-eslint/parser": "^4.25.0",
         "chai": "^4.3.4",
         "commitizen": "^4.2.4",
+        "cross-env": "^7.0.3",
         "cz-conventional-changelog": "^3.3.0",
         "dotenv": "^10.0.0",
         "eslint": "^7.27.0",
@@ -96,7 +97,8 @@
         "build": "tsc --project ./tsconfig.production.json",
         "clean:ts": "rimraf dist",
         "prebuild": "yarn clean:ts",
-        "prepack": "yarn build"
+        "prepack": "yarn build",
+        "test:gas": "cross-env REPORT_GAS=true yarn test"
     },
     "dependencies": {
         "@ethersproject/wallet": "^5.2.0",
