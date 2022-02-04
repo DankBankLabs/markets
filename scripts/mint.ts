@@ -56,8 +56,8 @@ async function main() {
     const Erc721Mock = await ethers.getContractFactory("ERC721Mock");
     const erc721Mock = await Erc721Mock.deploy(NFT_NAME, NFT_SYMBOL);
 
-    const tokenAddress = erc721Mock.address;
-    console.debug("Erc721 deployed to:", tokenAddress);
+    const erc721Address = erc721Mock.address;
+    console.debug("Erc721 deployed to:", erc721Address);
     const fractional = new Contract(VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI, signer);
 
     const tokenId = BigNumber.from(2);
@@ -68,7 +68,7 @@ async function main() {
     await approvalTx.wait();
     console.debug("Done minting ERC721 NFT: ", NFT_SYMBOL);
 
-    const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, tokenAddress, tokenId, SUPPLY, LIST_PRICE, FEE, {
+    const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, erc721Address, tokenId, SUPPLY, LIST_PRICE, FEE, {
         gasPrice: await getGasPrice(),
     });
     const receipt = await response.wait();
