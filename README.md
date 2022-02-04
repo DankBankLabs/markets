@@ -13,6 +13,22 @@ My favourite setup for writing Solidity smart contracts.
 This is a GitHub template, which means you can reuse it as many times as you want. You can do that by clicking the "Use this
 template" button at the top of the page.
 
+# Etherscan verification
+
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+
+In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+
+```shell
+hardhat run --network ropsten scripts/sample-script.ts
+```
+
+Then, run the verify task, passing the address of the contract replacing `DEPLOYED_CONTRACT_ADDRESS`, the network where it's deployed by replacing `NETWORK`, and the constructor arguments that were used to deploy it (if any):
+
+```shell
+npx hardhat verify --network NETWORK DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"
+```
+
 ## Usage
 
 ### Pre Requisites
@@ -84,7 +100,7 @@ $ yarn coverage
 See the gas usage per unit test and average gas per method call:
 
 ```sh
-$ REPORT_GAS=true yarn test
+$ yarn test:gas
 ```
 
 ### Clean
