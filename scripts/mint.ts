@@ -21,13 +21,16 @@ export const MARKET_CONTRACT_ADDRESS = goerliMarket;
 
 const NFT_NAME = "Nft Test";
 const NFT_SYMBOL = "TNT";
+const TOKEN_ID = 2;
+const TOKEN_ADDRESS = "0xf69a8818458cd7e6b3b75bd26b549c64216576ee";
 const SUPPLY = ONE.mul(1000000); // 1,000,000 tokens
 const LIST_PRICE = BigNumber.from(10).pow(15); // list for 0.001 ETH
 const FEE = "10"; // 1% fee
 
 const VAULT_FACTORY_ABI = hre.artifacts.readArtifactSync("ERC721VaultFactory").abi;
-const DANK_MARKET_ABI = hre.artifacts.readArtifactSync("DankMarket").abi;
-const ERC20_ABI = hre.artifacts.readArtifactSync("Erc20").abi;
+// const DANK_MARKET_ABI = hre.artifacts.readArtifactSync("DankMarket").abi;
+// const ERC20_ABI = hre.artifacts.readArtifactSync("Erc20").abi;
+const ERC721MOCK_ABI = hre.artifacts.readArtifactSync("ERC721Mock").abi;
 
 async function buyTokens(fractionalizedToken: Contract, market: Contract) {
     const tokenPool = await fractionalizedToken.balanceOf(market.address);
@@ -47,62 +50,89 @@ async function sellTokens(tokensIn: BigNumber, fractionalizedToken: Contract, ma
 const getGasPrice = async () => {
     const gasPrice = await ethers.provider.getGasPrice();
 
-    return gasPrice.mul(2);
+    return gasPrice.mul(20);  // updated from 2 to get past gas related issue
 };
 
 async function main() {
     const [signer] = await ethers.getSigners();
 
-    const Erc721Mock = await ethers.getContractFactory("ERC721Mock");
-    const erc721Mock = await Erc721Mock.deploy(NFT_NAME, NFT_SYMBOL);
+    // const Erc721Mock = await ethers.getContractFactory("ERC721Mock");
+    // const erc721Mock = await Erc721Mock.deploy(NFT_NAME, NFT_SYMBOL);
 
-    const erc721Address = erc721Mock.address;
-    console.debug("Erc721 deployed to:", erc721Address);
+    // const erc721Address = erc721Mock.address;
+    // console.debug("Erc721 deployed to:", erc721Address);
+
+    // deploy vault factory
+    // const Settings = await ethers.getContractFactory("Settings");
+    // const settings = await Settings.deploy();
+    // const VaultFactory = await ethers.getContractFactory("ERC721VaultFactory");
+    // const fractional = await VaultFactory.deploy(settings.address);
+    // console.log("vault factory: ", fractional.address);
+    // console.log("vault factory settings: ", settings.address);
+
+    const erc721Mock = new Contract(TOKEN_ADDRESS, ERC721MOCK_ABI, signer);
     const fractional = new Contract(VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI, signer);
 
-    const tokenId = BigNumber.from(2);
+    const tokenId = BigNumber.from(TOKEN_ID);
 
-    const mintTx = await erc721Mock.mint(signer.address, tokenId);
+    const mintTx = await erc721Mock.mint(
+        signer.address,
+        tokenId,
+        {
+            gasPrice: await getGasPrice(),
+            gasLimit: "2000000"  // to fix a gas limit issue i was having
+        }
+    );
     await mintTx.wait();
     const approvalTx = await erc721Mock.setApprovalForAll(fractional.address, true);
     await approvalTx.wait();
     console.debug("Done minting ERC721 NFT: ", NFT_SYMBOL);
 
-    const response = await fractional.mint(NFT_NAME, NFT_SYMBOL, erc721Address, tokenId, SUPPLY, LIST_PRICE, FEE, {
-        gasPrice: await getGasPrice(),
-    });
+    const response = await fractional.mint(
+        NFT_NAME,
+        NFT_SYMBOL,
+        TOKEN_ADDRESS,
+        tokenId,
+        SUPPLY,
+        LIST_PRICE,
+        FEE,
+        {
+            gasPrice: await getGasPrice(),
+            gasLimit: "2000000"  // to fix a gas limit issue i was having
+        }
+    );
     const receipt = await response.wait();
     console.debug("Done fractionalizing NFT");
 
     console.log({ receipt });
 
-    const mintEvent = receipt.events.find((event: any) => "event" in event && event?.event === "Mint");
-    const newVaultAddress = mintEvent.args?.[3];
+    const mintEvent = receipt.events?.find((event: any) => "event" in event && event?.event === "Mint");
+    const newVaultAddress = mintEvent?.args?.[3];
     console.debug("New fractionalized token address:", newVaultAddress);
 
-    const market = new Contract(MARKET_CONTRACT_ADDRESS, DANK_MARKET_ABI, signer);
-    const fractionalizedToken = new Contract(newVaultAddress, ERC20_ABI, signer);
+    // const market = new Contract(MARKET_CONTRACT_ADDRESS, DANK_MARKET_ABI, signer);
+    // const fractionalizedToken = new Contract(newVaultAddress, ERC20_ABI, signer);
 
-    const approveToMarketTx = await fractionalizedToken.approve(market.address, constants.MaxUint256, {
-        gasPrice: await getGasPrice(),
-    });
-    await approveToMarketTx.wait();
-    console.debug("Approved transfer for market contract");
+    // const approveToMarketTx = await fractionalizedToken.approve(market.address, constants.MaxUint256, {
+    //     gasPrice: await getGasPrice(),
+    // });
+    // await approveToMarketTx.wait();
+    // console.debug("Approved transfer for market contract");
 
-    const initEthSupply = LIST_PRICE.mul(SUPPLY).div(ONE);
+    // const initEthSupply = LIST_PRICE.mul(SUPPLY).div(ONE);
 
-    const initTx = await market.initPool(fractionalizedToken.address, SUPPLY, initEthSupply, {
-        gasPrice: await getGasPrice(),
-    });
-    await initTx.wait();
-    console.debug("Initialized market pool");
+    // const initTx = await market.initPool(fractionalizedToken.address, SUPPLY, initEthSupply, {
+    //     gasPrice: await getGasPrice(),
+    // });
+    // await initTx.wait();
+    // console.debug("Initialized market pool");
 
-    const buyTx = await buyTokens(fractionalizedToken, market);
-    await buyTx.wait();
-    console.debug(`Bought one ${NFT_SYMBOL} token`);
+    // const buyTx = await buyTokens(fractionalizedToken, market);
+    // await buyTx.wait();
+    // console.debug(`Bought one ${NFT_SYMBOL} token`);
 
-    await sellTokens(ONE.div(10), fractionalizedToken, market);
-    console.debug(`Sold 0.1 ${NFT_SYMBOL} token`);
+    // await sellTokens(ONE.div(10), fractionalizedToken, market);
+    // console.debug(`Sold 0.1 ${NFT_SYMBOL} token`);
 }
 
 main()

@@ -86,6 +86,7 @@
     "upgrade:goerli": "hardhat run scripts/upgrade.ts --network goerli",
     "mint:mainnet": "hardhat run scripts/mint.ts --network mainnet",
     "mint:goerli": "hardhat run scripts/mint.ts --network goerli",
+    "mint:mumbai": "hardhat run scripts/mint.ts --network mumbai",
     "start": "hardhat node",
     "storage-layout": "hardhat run scripts/storageLayout.ts",
     "lint": "yarn run lint:sol && yarn run lint:ts && yarn run prettier:check",
