@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, deployments } from "hardhat";
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -6,11 +6,9 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
-    const tokenFactory = await ethers.getContractFactory("MockToken");
+    const token = await deployments.deploy("MockToken", { from: deployer.address, log: true });
 
-    const token = await tokenFactory.deploy();
-
-    console.log(`The mock token address is ${token.address} with total supply`);
+    console.log(`The mock token address is ${token.address.toLowerCase()} with total supply`);
 }
 
 main()
