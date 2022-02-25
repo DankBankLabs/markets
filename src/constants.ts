@@ -19,3 +19,14 @@ export const CHAIN_ID_TO_NAME = Object.freeze({
     137: "matic",
     80001: "mumbai",
 });
+
+export const networks: Readonly<any> = Object.freeze({
+    matic: {
+        networkId: 137,
+        vaultFactoryAddress: "0x70D841fa16D8caD638bEff560Ec442c25F293cE8",
+    },
+    mumbai: {
+        networkId: 80001,
+        vaultFactoryAddress: "0x29b3D7715dA4c66851506599fF97285De09ed946",
+    },
+});

@@ -82,6 +82,7 @@
     "deploy:gsn:matic": "hardhat run scripts/deployGSN.ts --network matic",
     "deploy:gsn:mumbai": "hardhat run scripts/deployGSN.ts --network mumbai",
     "deploy:gsn:goerli": "hardhat run scripts/deployGSN.ts --network goerli",
+    "deploy:factory:mumbai": "hardhat run scripts/deployVaultFactory.ts --network mumbai",
     "upgrade:mainnet": "hardhat run scripts/upgrade.ts --network mainnet",
     "upgrade:goerli": "hardhat run scripts/upgrade.ts --network goerli",
     "mint:mainnet": "hardhat run scripts/mint.ts --network mainnet",

@@ -10,6 +10,8 @@ import "hardhat-storage-layout";
 
 import "./tasks/accounts";
 import "./tasks/clean";
+import "./tasks/deploy-vault-factory";
+import "./tasks/mintTokenVaults";
 
 import { resolve } from "path";
 
