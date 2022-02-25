@@ -82,6 +82,8 @@
     "deploy:gsn:matic": "hardhat run scripts/deployGSN.ts --network matic",
     "deploy:gsn:mumbai": "hardhat run scripts/deployGSN.ts --network mumbai",
     "deploy:gsn:goerli": "hardhat run scripts/deployGSN.ts --network goerli",
+    "deploy:mockToken:mumbai": "hardhat run scripts/deploy-erc20.ts --network mumbai",
+    "deploy:mockToken:goerli": "hardhat run scripts/deploy-erc20.ts --network goerli",
     "upgrade:mainnet": "hardhat run scripts/upgrade.ts --network mainnet",
     "upgrade:goerli": "hardhat run scripts/upgrade.ts --network goerli",
     "mint:mainnet": "hardhat run scripts/mint.ts --network mainnet",
