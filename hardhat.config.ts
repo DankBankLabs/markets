@@ -69,7 +69,9 @@ if (defenderApiKey && defenderSecret) {
     };
 }
 
+// Bug in hardhat that doesn't allow us to multiple keys for different networks.
 const etherscanKey = process.env.ETHERSCAN_API_KEY;
+// const polyscanKey = process.env.POLYSCAN_API_KEY;
 const etherscanSettings = { etherscan: { apiKey: etherscanKey } };
 
 function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig {
