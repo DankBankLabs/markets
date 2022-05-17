@@ -131,6 +131,7 @@ contract DankBankMarketGSN is
 
         // XXX: _burn must by attempted before transfers to prevent reentrancy
         IERC20Upgradeable(memeToken).safeTransfer(_msgSender(), memeTokensRemoved);
+        require(paymentTokensRemoved < tokenPoolSupply[memeToken], "DankBankMarket: Not enough usdc");
         IERC20Upgradeable(paymentToken).safeTransfer(_msgSender(), paymentTokensRemoved);
 
         emit LiquidityRemoved(_msgSender(), memeToken, memeTokensRemoved, paymentTokensRemoved, burnAmount);

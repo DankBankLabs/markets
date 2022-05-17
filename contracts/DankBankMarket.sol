@@ -102,7 +102,8 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         // XXX: _burn must by attempted before transfers to prevent reentrancy
         IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensRemoved);
-
+        
+        require(ethRemoved < ethPoolSupply[token], "DankBankMarket: Not enough eth");
         (bool success, ) = _msgSender().call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
 
