@@ -61,16 +61,13 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
 
         uint256 prevPoolBalance = IERC20Upgradeable(token).balanceOf(address(this)) - inputAmount;
 
-        uint256 ethAdded = (inputAmount * ethPoolSupply[token]) / prevPoolBalance;
+        uint256 ethAdded = (inputAmount * (ethPoolSupply[token] + virtualEthPoolSupply[token])) / prevPoolBalance;
 
         // ensure adding liquidity in specific price range
         require(msg.value >= ethAdded, "DankBankMarket: insufficient ETH supplied.");
         require(ethAdded >= minEthAdded, "DankBankMarket: ETH supplied less than minimum required.");
 
         ethPoolSupply[token] += ethAdded;
-
-        uint256 virtualEthAdded = (inputAmount * virtualEthPoolSupply[token]) / prevPoolBalance;
-        virtualEthPoolSupply[token] += virtualEthAdded;
 
         uint256 mintAmount = (inputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
         _mint(_msgSender(), tokenId, mintAmount, "");
@@ -93,11 +90,9 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 tokenId = getTokenId(token);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
-        uint256 ethRemoved = (burnAmount * ethPoolSupply[token]) / lpSupply;
+        uint256 ethRemoved = (burnAmount * (ethPoolSupply[token] + virtualEthPoolSupply[token])) / lpSupply;
         ethPoolSupply[token] -= ethRemoved;
         require(ethRemoved >= minEth, "DankBankMarket: ETH out is less than minimum ETH specified");
-
-        virtualEthPoolSupply[token] -= (burnAmount * virtualEthPoolSupply[token]) / lpSupply;
 
         uint256 tokensRemoved = (burnAmount * IERC20Upgradeable(token).balanceOf(address(this))) / lpSupply;
         require(tokensRemoved >= minTokens, "DankBankMarket: Token out is less than minimum specified");

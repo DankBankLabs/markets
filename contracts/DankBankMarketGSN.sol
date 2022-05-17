@@ -84,7 +84,7 @@ contract DankBankMarketGSN is
 
         uint256 prevPoolBalance = IERC20Upgradeable(memeToken).balanceOf(address(this)) - memeTokenInputAmount;
 
-        uint256 paymentTokensAdded = (memeTokenInputAmount * tokenPoolSupply[memeToken]) / prevPoolBalance;
+        uint256 paymentTokensAdded = (memeTokenInputAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) / prevPoolBalance;
 
         // ensure adding liquidity in specific price range
         require(paymentTokenInputAmount >= paymentTokensAdded, "DankBankMarket: insufficient payment token supplied.");
@@ -94,9 +94,6 @@ contract DankBankMarketGSN is
         );
 
         tokenPoolSupply[memeToken] += paymentTokensAdded;
-
-        uint256 virtualTokensAdded = (memeTokenInputAmount * virtualTokenPoolSupply[memeToken]) / prevPoolBalance;
-        virtualTokenPoolSupply[memeToken] += virtualTokensAdded;
 
         uint256 mintAmount = (memeTokenInputAmount * lpTokenSupply(tokenId)) / prevPoolBalance;
         _mint(_msgSender(), tokenId, mintAmount, "");
@@ -118,14 +115,13 @@ contract DankBankMarketGSN is
         uint256 tokenId = getTokenId(memeToken);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
-        uint256 paymentTokensRemoved = (burnAmount * tokenPoolSupply[memeToken]) / lpSupply;
+        uint256 paymentTokensRemoved = (burnAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) 
+            / lpSupply;
         tokenPoolSupply[memeToken] -= paymentTokensRemoved;
         require(
             paymentTokensRemoved >= minPaymentTokens,
             "DankBankMarket: Payment tokens out is less than minimum tokens specified"
         );
-
-        virtualTokenPoolSupply[memeToken] -= (burnAmount * virtualTokenPoolSupply[memeToken]) / lpSupply;
 
         uint256 memeTokensRemoved = (burnAmount * IERC20Upgradeable(memeToken).balanceOf(address(this))) / lpSupply;
         require(memeTokensRemoved >= minMemeTokens, "DankBankMarket: Meme token out is less than minimum specified");
