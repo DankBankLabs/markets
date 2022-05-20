@@ -30,7 +30,7 @@ async function main() {
         },
     );
 
-    console.log(`GSN Market Address: ${gsnMarket.address}`);
+    console.log(`GSN Market Address: ${gsnMarket}`);
 }
 
 main()
