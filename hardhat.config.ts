@@ -71,8 +71,10 @@ if (defenderApiKey && defenderSecret) {
 
 // Bug in hardhat that doesn't allow us to multiple keys for different networks.
 const etherscanKey = process.env.ETHERSCAN_API_KEY;
-// const polyscanKey = process.env.POLYSCAN_API_KEY;
-const etherscanSettings = { etherscan: { apiKey: etherscanKey } };
+const polyscanKey = process.env.POLYSCAN_API_KEY;
+const etherscanSettings = {
+    etherscan: { apiKey: { mainnet: etherscanKey, polygon: polyscanKey, polygonMumbai: polyscanKey } },
+};
 
 function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig {
     let url: string = infuraUrl[network];
@@ -90,7 +92,7 @@ function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig 
     };
 }
 
-const config: HardhatUserConfig = {
+const config: any = {
     defaultNetwork: "hardhat",
     namedAccounts: {
         deployer: 0, // Do not use this account for testing
@@ -133,25 +135,35 @@ const config: HardhatUserConfig = {
         tests: "./test",
     },
     solidity: {
-        version: "0.8.4",
-        settings: {
-            metadata: {
-                // Not including the metadata hash
-                // https://github.com/paulrberg/solidity-template/issues/31
-                bytecodeHash: "none",
-            },
-            // You should disable the optimizer when debugging
-            // https://hardhat.org/hardhat-network/#solidity-optimizer-support
-            optimizer: {
-                enabled: true,
-                runs: 1000,
-            },
-            outputSelection: {
-                "*": {
-                    "*": ["storageLayout"],
+        compilers: [
+            {
+                version: "0.8.4",
+                settings: {
+                    metadata: {
+                        // Not including the metadata hash
+                        // https://github.com/paulrberg/solidity-template/issues/31
+                        bytecodeHash: "none",
+                    },
+                    // You should disable the optimizer when debugging
+                    // https://hardhat.org/hardhat-network/#solidity-optimizer-support
+                    optimizer: {
+                        enabled: true,
+                        runs: 1000,
+                    },
+                    outputSelection: {
+                        "*": {
+                            "*": ["storageLayout"],
+                        },
+                    },
                 },
             },
-        },
+            {
+                version: "0.8.9",
+            },
+            {
+                version: "0.8.2",
+            },
+        ],
     },
     typechain: {
         outDir: "typechain",

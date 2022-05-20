@@ -3,8 +3,8 @@ pragma solidity 0.8.4;
 
 import "./DankBankMarketGSNData.sol";
 import "./ERC1155LPTokenUpgradeable.sol";
+import "./gsn/ERC2771ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -84,10 +84,11 @@ contract DankBankMarketGSN is
 
         uint256 prevPoolBalance = IERC20Upgradeable(memeToken).balanceOf(address(this)) - memeTokenInputAmount;
 
-        uint256 paymentTokensAdded = (memeTokenInputAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) / prevPoolBalance;
+        uint256 paymentTokensAdded = (memeTokenInputAmount *
+            (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) / prevPoolBalance;
 
         // ensure adding liquidity in specific price range
-        require(paymentTokenInputAmount >= paymentTokensAdded, "DankBankMarket: insufficient payment token supplied.");
+        require(paymentTokenInputAmount >= paymentTokensAdded, "DankBankMarket: insufficient payment tokens supplied.");
         require(
             paymentTokensAdded >= minPaymentTokensAdded,
             "DankBankMarket: Payment token supplied less than minimum required."
@@ -115,8 +116,8 @@ contract DankBankMarketGSN is
         uint256 tokenId = getTokenId(memeToken);
         uint256 lpSupply = lpTokenSupply(tokenId);
 
-        uint256 paymentTokensRemoved = (burnAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) 
-            / lpSupply;
+        uint256 paymentTokensRemoved = (burnAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) /
+            lpSupply;
         tokenPoolSupply[memeToken] -= paymentTokensRemoved;
         require(
             paymentTokensRemoved >= minPaymentTokens,

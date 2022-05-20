@@ -16,6 +16,8 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
+    console.log("Deploying to network: ", network.name);
+
     const marketAddress = getMarketAddress(network.name);
 
     const marketFactory = await ethers.getContractFactory("DankBankMarket");
