@@ -14,16 +14,16 @@
 
 To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan/Polyscan API key and the MNEMONIC of the account which will send the deployment transaction. Updated the `arguments.js` file with the exact arguments for the constructor that were used to deploy the contract. With a valid .env and `argument.js` file in place, first deploy your contract
 
 ```shell
-hardhat run --network ropsten scripts/sample-script.ts
+yarn deploy:matic
 ```
 
-Then, run the verify task, passing the address of the contract replacing `DEPLOYED_CONTRACT_ADDRESS`, the network where it's deployed by replacing `NETWORK`, and the constructor arguments that were used to deploy it (if any):
+Then, run the verify task, passing the address of the contract replacing `DEPLOYED_CONTRACT_ADDRESS`, the network where it's deployed by replacing `NETWORK`:
 
 ```shell
-npx hardhat verify --network NETWORK DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"
+npx hardhat verify --constructor-args arguments.js --network <NETWORK_NAME> <DEPLOYED_CONTRACT_ADDRESS>
 ```
 
 ## Usage
