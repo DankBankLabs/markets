@@ -91,7 +91,6 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         uint256 lpSupply = lpTokenSupply(tokenId);
 
         uint256 ethRemoved = (burnAmount * (ethPoolSupply[token] + virtualEthPoolSupply[token])) / lpSupply;
-        ethPoolSupply[token] -= ethRemoved;
         require(ethRemoved >= minEth, "DankBankMarket: ETH out is less than minimum ETH specified");
 
         uint256 tokensRemoved = (burnAmount * IERC20Upgradeable(token).balanceOf(address(this))) / lpSupply;
@@ -104,6 +103,7 @@ contract DankBankMarket is DankBankMarketData, Initializable, ERC1155LPTokenUpgr
         IERC20Upgradeable(token).safeTransfer(_msgSender(), tokensRemoved);
         
         require(ethRemoved < ethPoolSupply[token], "DankBankMarket: Not enough eth");
+        ethPoolSupply[token] -= ethRemoved;
         (bool success, ) = _msgSender().call{ value: ethRemoved }("");
         require(success, "DankBankMarket: Transfer failed.");
 

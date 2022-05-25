@@ -211,10 +211,12 @@ export function shouldBehaveLikeMarketGSN(): void {
             const paymentTokenBalanceBefore = await this.paymentToken.balanceOf(this.marketGSN.address);
 
             const paymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
+            const virtualPaymentTokenPoolSupply = await this.marketGSN.virtualTokenPoolSupply(this.token.address);
+            const getTotalTokenPoolSupply = paymentTokenPoolSupply.add(virtualPaymentTokenPoolSupply);
 
             const paymentTokensToAdd = calculateEthOrTokensToAdd(
                 inputPaymentTokenAmount,
-                paymentTokenPoolSupply,
+                getTotalTokenPoolSupply,
                 memeTokenPoolBalance,
             );
 
@@ -255,7 +257,9 @@ export function shouldBehaveLikeMarketGSN(): void {
             const poolBalance = await this.token.balanceOf(this.marketGSN.address);
 
             const paymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
-            const paymentTokenToAdd = calculateEthOrTokensToAdd(inputAmount, paymentTokenPoolSupply, poolBalance);
+            const virtualPaymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
+            const getTotalTokenPoolSupply = paymentTokenPoolSupply.add(virtualPaymentTokenPoolSupply);
+            const paymentTokenToAdd = calculateEthOrTokensToAdd(inputAmount, getTotalTokenPoolSupply, poolBalance);
 
             const methodArgs = [this.token.address, 1, paymentTokenToAdd, paymentTokenToAdd.add(1)];
             const resp = await relayFunctionCall(

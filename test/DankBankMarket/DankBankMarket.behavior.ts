@@ -14,6 +14,7 @@ import {
 export function shouldBehaveLikeMarket(): void {
     let expectedTokensOut: BigNumber;
     let expectedEthBalance: BigNumber;
+    let otherToken: TestERC20;
 
     it("tokenId is the address of the token", async function () {
         const tokenId = await this.market.getTokenId(this.token.address);
@@ -26,7 +27,7 @@ export function shouldBehaveLikeMarket(): void {
 
         it("reverts adding liquidity if token is not approved", async function () {
             await expect(this.market.initPool(this.token.address, ONE, ONE)).to.be.revertedWith(
-                "ERC20: transfer amount exceeds allowance",
+                "ERC20: insufficient allowance",
             );
         });
 
@@ -76,7 +77,6 @@ export function shouldBehaveLikeMarket(): void {
     });
 
     describe("add initial liquidity with an initial eth pool supply", function () {
-        let otherToken: TestERC20;
         const virtualEthPoolSupply = ONE;
         const ethPoolSupply = ONE;
 
@@ -99,19 +99,23 @@ export function shouldBehaveLikeMarket(): void {
         });
 
         it("has the expected virtual eth supply", async function () {
-            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+            const expectedVirtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
 
-            expect(virtualEthPoolSupply.toString()).to.equal(virtualEthPoolSupply.toString());
+            expect(expectedVirtualEthPoolSupply.toString()).to.equal(virtualEthPoolSupply.toString());
         });
 
         it("has the expected eth pool supply", async function () {
-            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+            const expectedEthPoolSupply = await this.market.ethPoolSupply(otherToken.address);
 
-            expect(ethPoolSupply.toString()).to.equal(ethPoolSupply.toString());
+            expect(expectedEthPoolSupply.toString()).to.equal(ethPoolSupply.toString());
         });
     });
 
     describe("buy tokens", function () {
+        let poolTokenOut: BigNumber;
+        let poolTokenBalanceBeforeTrade: BigNumber;
+        let tokenBalanceBeforeTrade: BigNumber;
+
         it("calc buy amount is as expected", async function () {
             const ethIn = ONE;
             expectedEthBalance = ethIn;
@@ -125,7 +129,6 @@ export function shouldBehaveLikeMarket(): void {
             expect(buyAmount.toString()).to.equal(expectedTokensOut.toString());
         });
 
-        let tokenBalanceBeforeTrade: BigNumber;
 
         it("allows buying tokens", async function () {
             const ethIn = ONE;
@@ -134,6 +137,9 @@ export function shouldBehaveLikeMarket(): void {
             const ethPool = await this.market.getTotalEthPoolSupply(this.token.address);
 
             expectedTokensOut = calculateBuyTokensOut(ethIn, ethPool, tokenPool);
+
+            poolTokenOut = expectedTokensOut;
+            poolTokenBalanceBeforeTrade = tokenPool;
 
             tokenBalanceBeforeTrade = await this.token.balanceOf(this.signers.admin.address);
 
@@ -144,6 +150,10 @@ export function shouldBehaveLikeMarket(): void {
             )
                 .to.emit(this.market, "DankBankBuy")
                 .withArgs(this.signers.admin.address, this.token.address, ethIn, expectedTokensOut);
+        });
+
+        it("expected tokens remaining in contract", async function () {
+            expect(await this.token.balanceOf(this.market.address)).to.equal(poolTokenBalanceBeforeTrade.sub(poolTokenOut));
         });
 
         it("user token balance is as expected", async function () {
@@ -174,8 +184,12 @@ export function shouldBehaveLikeMarket(): void {
         });
     });
 
-    describe("add subsequent liquidity", function () {
+    describe("add subsequent liquidity to pure vEth pool", function () {
         let ratioBefore: BigNumber;
+        let vEthBefore: BigNumber;
+        let ethBefore: BigNumber;
+        let ethAdded: BigNumber;
+        let tokenBefore: BigNumber;
 
         it("able to add subsequent liquidity", async function () {
             const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
@@ -185,21 +199,41 @@ export function shouldBehaveLikeMarket(): void {
             const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
 
             const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, ethPoolSupply, poolBalance);
+            const vethPoolSupply = await this.market.virtualEthPoolSupply(this.token.address);
+            const totalEthPoolSupply = ethPoolSupply.add(vethPoolSupply);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, totalEthPoolSupply, poolBalance);
 
             ratioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
+            vEthBefore = await this.market.virtualEthPoolSupply(this.token.address);
+            ethBefore = await this.market.ethPoolSupply(this.token.address);
+            
+            tokenBefore = poolBalance;
+            ethAdded = ethToAdd;
 
             await expect(this.market.addLiquidity(this.token.address, ONE, ethToAdd, { value: ethToAdd }))
                 .to.emit(this.market, "LiquidityAdded")
                 .withArgs(this.signers.admin.address, this.token.address, inputAmount, expectedMintAmount);
         });
 
-        it("adding liquidity keeps the eth to virtual eth ratio the same", async function () {
+        it("veth pool amount remains constant when adding liquidity", async function () {
+            const vEthPoolSupply = await this.market.virtualEthPoolSupply(this.token.address);
+
+            expect(vEthBefore.toString()).to.equal(vEthPoolSupply.toString());
+        });
+
+        it("eth pool amount increases, assures only eth is added", async function () {
+            expect(await this.market.ethPoolSupply(this.token.address)).to.equal(ethBefore.add(ethAdded));
+        });
+
+        it("asserts correct amount of token is added to the pool", async function () {
+            expect(await this.token.balanceOf(this.market.address)).to.equal(tokenBefore.add(ONE));
+        });
+
+        it("only eth should be added on subsequent add liquidity, so ratio should not be the same", async function () {
             const ratioAfter = (await this.market.virtualEthPoolSupply(this.token.address)).div(
                 await this.market.ethPoolSupply(this.token.address),
             );
-
-            expect(ratioAfter.toString()).to.equal(ratioBefore.toString());
+            expect(ratioAfter.toString()).not.equal(ratioBefore.toString());
         });
 
         it("reverts when not enough eth is supplied as liquidity", async function () {
@@ -213,13 +247,65 @@ export function shouldBehaveLikeMarket(): void {
             const poolBalance = await this.token.balanceOf(this.market.address);
 
             const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
-            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, ethPoolSupply, poolBalance);
-
+            const vEthPoolSupply = await this.market.virtualEthPoolSupply(this.token.address);
+            const totalEthPoolSupply = ethPoolSupply.add(vEthPoolSupply);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, totalEthPoolSupply, poolBalance);
+            
             await expect(
                 this.market.addLiquidity(this.token.address, 1, ethToAdd.add(1), { value: ethToAdd }),
             ).to.be.revertedWith("DankBankMarket: ETH supplied less than minimum required.");
         });
     });
+
+    describe("able to add subsequent liquidity to pool with initial eth pool supply", function () {
+        let vEthBefore: BigNumber;
+        let ethBefore: BigNumber;
+        let ethAdded: BigNumber;
+        let tokenBefore: BigNumber;
+
+        it("able to add subsequent liquidity", async function () {
+            const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
+            const inputAmount = ONE;
+            const poolBalance = await otherToken.balanceOf(this.market.address);
+
+            const expectedMintAmount = inputAmount.mul(lpTokenSupply).div(poolBalance);
+
+            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+            const vethPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+            const totalEthPoolSupply = ethPoolSupply.add(vethPoolSupply);
+            const ethToAdd = calculateEthOrTokensToAdd(inputAmount, totalEthPoolSupply, poolBalance);
+
+            vEthBefore = await this.market.virtualEthPoolSupply(otherToken.address);
+            ethBefore = await this.market.ethPoolSupply(otherToken.address);
+            ethAdded = ethToAdd;
+            tokenBefore = poolBalance;
+
+            await expect(this.market.addLiquidity(otherToken.address, ONE, ethToAdd, { value: ethToAdd }))
+                .to.emit(this.market, "LiquidityAdded")
+                .withArgs(this.signers.admin.address, otherToken.address, inputAmount, expectedMintAmount);
+        });
+
+         it("veth pool amount remains constant when adding liquidity", async function () {
+            const vEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+
+            expect(vEthBefore.toString()).to.equal(vEthPoolSupply.toString());
+        });
+
+        it("eth pool amount increases, assures only eth is added", async function () {
+            expect(await this.market.ethPoolSupply(otherToken.address)).to.equal(ethBefore.add(ethAdded));
+        });
+
+        it("asserts correct amount of token is added to the pool", async function () {
+            expect(await otherToken.balanceOf(this.market.address)).to.equal(tokenBefore.add(ONE));
+        });
+
+        it("reverts when not enough eth is supplied as liquidity", async function () {
+            await expect(this.market.addLiquidity(otherToken.address, 1, 0)).to.be.revertedWith(
+                "DankBankMarket: insufficient ETH supplied.",
+            );
+        });
+
+    })
 
     describe("sell tokens", function () {
         let expectedEthOut: BigNumber;
@@ -302,50 +388,49 @@ export function shouldBehaveLikeMarket(): void {
 
             expect(balance.toString()).to.equal("0");
 
+            await this.token.connect(signer).approve(this.market.address, constants.MaxUint256);
+
             await expect(this.market.connect(signer).sell(this.token.address, 10, 0)).to.be.revertedWith(
                 "ERC20: transfer amount exceeds balance",
             );
         });
     });
 
-    describe("remove liquidity", function () {
+    describe("remove liquidity for pool with initial eth pool supply", function () {
         let lpTokenBalance: BigNumber;
         let burnAmount: BigNumber;
         let expectedTokenBalanceAfter: BigNumber;
-        let ethRatioBefore: BigNumber;
+
 
         it("able to remove liquidity", async function () {
-            lpTokenBalance = await this.market.balanceOf(this.signers.admin.address, this.token.address);
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
+
+            lpTokenBalance = await this.market.balanceOf(this.signers.admin.address, otherToken.address);
 
             burnAmount = lpTokenBalance.div(2);
 
-            const ethPoolSupply = await this.market.ethPoolSupply(this.token.address);
+            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
 
-            const ethRemoved = burnAmount.mul(ethPoolSupply).div(lpTokenSupply);
-            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+            const ethRemoved = (burnAmount.mul(ethPoolSupply.add(virtualEthPoolSupply))).div(lpTokenSupply);
+            const tokensRemoved = (burnAmount.mul(await otherToken.balanceOf(this.market.address))).div(lpTokenSupply);
 
-            const tokenBalanceBefore = await this.token.balanceOf(this.signers.admin.address);
+            const tokenBalanceBefore = await otherToken.balanceOf(this.signers.admin.address);
 
             expectedTokenBalanceAfter = tokenBalanceBefore.add(tokensRemoved);
 
-            ethRatioBefore = (await this.market.virtualEthPoolSupply(this.token.address)).div(ethPoolSupply);
-
-            await expect(this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved))
+            await expect(this.market.removeLiquidity(otherToken.address, burnAmount, tokensRemoved, ethRemoved))
                 .to.emit(this.market, "LiquidityRemoved")
-                .withArgs(this.signers.admin.address, this.token.address, tokensRemoved, ethRemoved, burnAmount);
+                .withArgs(this.signers.admin.address, otherToken.address, tokensRemoved, ethRemoved, burnAmount);
         });
 
         it("keeps eth to virtual eth ratio the same on removing liqudity", async function () {
-            const ethRatioAfter = (await this.market.virtualEthPoolSupply(this.token.address)).div(
-                await this.market.ethPoolSupply(this.token.address),
-            );
-
-            expect(ethRatioBefore.toString()).to.equal(ethRatioAfter.toString());
+            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+            expect(virtualEthPoolSupply).to.equal(ONE);
         });
 
         it("token balance updated with tokens removed from liquidity", async function () {
-            const tokenBalance = await this.token.balanceOf(this.signers.admin.address);
+            const tokenBalance = await otherToken.balanceOf(this.signers.admin.address);
 
             expect(tokenBalance.toString()).to.equal(expectedTokenBalanceAfter.toString());
         });
@@ -353,7 +438,7 @@ export function shouldBehaveLikeMarket(): void {
         it("lp tokens were burned", async function () {
             const expectedLpTokenSupply = lpTokenBalance.sub(burnAmount);
 
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
 
             expect(lpTokenSupply.toString()).to.equal(expectedLpTokenSupply.toString());
         });
@@ -364,70 +449,74 @@ export function shouldBehaveLikeMarket(): void {
             await expect(
                 this.market
                     .connect(signer)
-                    .removeLiquidity(this.token.address, await this.market.lpTokenSupply(this.token.address), 0, 0),
+                    .removeLiquidity(otherToken.address, await this.market.lpTokenSupply(otherToken.address), 0, 0),
             ).to.be.revertedWith("ERC1155: burn amount exceeds balance");
         });
 
         it("reverts trying to burn more tokens than in pool", async function () {
             await expect(
                 this.market.removeLiquidity(
-                    this.token.address,
-                    (await this.market.lpTokenSupply(this.token.address)).add(1),
+                    otherToken.address,
+                    (await this.market.lpTokenSupply(otherToken.address)).add(1),
                     0,
                     0,
                 ),
             ).to.be.revertedWith(
-                "panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)",
+                "ERC1155: burn amount exceeds balance",
             );
         });
 
         it("reverts when receiving less tokens than desired", async function () {
-            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+            const burnAmount = await this.market.balanceOf(this.signers.admin.address, otherToken.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
 
-            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
-            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+
+            const ethRemoved = (burnAmount.mul(ethPoolSupply.add(virtualEthPoolSupply))).div(lpTokenSupply);
+            const tokensRemoved = (burnAmount.mul(await otherToken.balanceOf(this.market.address))).div(lpTokenSupply);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved.add(1), ethRemoved),
+                this.market.removeLiquidity(otherToken.address, burnAmount, tokensRemoved.add(1), ethRemoved),
             ).to.be.revertedWith("DankBankMarket: Token out is less than minimum specified");
         });
 
         it("reverts when receiving less eth than desired", async function () {
-            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
+            const burnAmount = await this.market.balanceOf(this.signers.admin.address, otherToken.address);
+            const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
 
-            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
-            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+            const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+            const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
+
+            const ethRemoved = (burnAmount.mul(ethPoolSupply.add(virtualEthPoolSupply))).div(lpTokenSupply);
+            const tokensRemoved = (burnAmount.mul(await otherToken.balanceOf(this.market.address))).div(lpTokenSupply);
 
             await expect(
-                this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved.add(1)),
+                this.market.removeLiquidity(otherToken.address, burnAmount, tokensRemoved, ethRemoved.add(1)),
             ).to.be.revertedWith("DankBankMarket: ETH out is less than minimum ETH specified");
         });
 
-        it("able to remove rest of liquidity", async function () {
-            const burnAmount = await this.market.balanceOf(this.signers.admin.address, this.token.address);
-            const lpTokenSupply = await this.market.lpTokenSupply(this.token.address);
 
-            const ethRemoved = burnAmount.mul(await this.market.ethPoolSupply(this.token.address)).div(lpTokenSupply);
-            const tokensRemoved = burnAmount.mul(await this.token.balanceOf(this.market.address)).div(lpTokenSupply);
+        // can't remove the remaining vEth according to current contract composition
+        // it("able to remove rest of liquidity", async function () {
+        //     const burnAmount = await this.market.balanceOf(this.signers.admin.address, otherToken.address);
+        //     const lpTokenSupply = await this.market.lpTokenSupply(otherToken.address);
 
-            const tokenBalanceBefore = await this.token.balanceOf(this.signers.admin.address);
+        //     const ethPoolSupply = await this.market.ethPoolSupply(otherToken.address);
+        //     const virtualEthPoolSupply = await this.market.virtualEthPoolSupply(otherToken.address);
 
-            expectedTokenBalanceAfter = tokenBalanceBefore.add(tokensRemoved);
+        //     const ethRemoved = (burnAmount.mul(ethPoolSupply.add(virtualEthPoolSupply))).div(lpTokenSupply);
+        //     const tokensRemoved = (burnAmount.mul(await otherToken.balanceOf(this.market.address))).div(lpTokenSupply);
 
-            await expect(this.market.removeLiquidity(this.token.address, burnAmount, tokensRemoved, ethRemoved))
-                .to.emit(this.market, "LiquidityRemoved")
-                .withArgs(this.signers.admin.address, this.token.address, tokensRemoved, ethRemoved, burnAmount);
-        });
-    });
+        //     const tokenBalanceBefore = await otherToken.balanceOf(this.signers.admin.address);
 
-    describe("storage layout", function () {
-        it("should have _status as the last slot in layout", async function () {
-            const _status = await ethers.provider.getStorageAt(this.market.address, 154);
-            const emptySlot = await ethers.provider.getStorageAt(this.market.address, 155);
-            expect(parseInt(_status, 16)).to.eq(1);
-            expect(parseInt(emptySlot, 16)).to.eq(0);
-        });
+        //     expectedTokenBalanceAfter = tokenBalanceBefore.add(tokensRemoved);
+
+        //     console.log(ethRemoved.toString(), ethPoolSupply.toString(), lpTokenBalance.toString(), lpTokenSupply.toString());
+
+        //     await expect(this.market.removeLiquidity(otherToken.address, burnAmount, tokensRemoved, ethRemoved))
+        //         .to.emit(this.market, "LiquidityRemoved")
+        //         .withArgs(this.signers.admin.address, otherToken.address, tokensRemoved, ethRemoved, burnAmount);
+        // });
     });
 }

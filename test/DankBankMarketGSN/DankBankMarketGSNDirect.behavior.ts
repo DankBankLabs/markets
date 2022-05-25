@@ -202,12 +202,13 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             const paymentTokenBalanceBefore = await this.paymentToken.balanceOf(this.marketGSN.address);
 
             const paymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
-
+            const virtualPaymentTokenPoolSupply = await this.marketGSN.virtualTokenPoolSupply(this.token.address);
             const expectedMintAmount = inputPaymentTokenAmount.mul(lpTokenSupply).div(memeTokenPoolBalance);
 
+            const totalTokenPoolSupply = paymentTokenPoolSupply.add(virtualPaymentTokenPoolSupply);
             const paymentTokensToAdd = calculateEthOrTokensToAdd(
                 inputPaymentTokenAmount,
-                paymentTokenPoolSupply,
+                totalTokenPoolSupply,
                 memeTokenPoolBalance,
             );
 
@@ -248,7 +249,9 @@ export function shouldBehaveLikeMarketGSNDirect(): void {
             const poolBalance = await this.token.balanceOf(this.marketGSN.address);
 
             const paymentTokenPoolSupply = await this.marketGSN.tokenPoolSupply(this.token.address);
-            const paymentTokenToAdd = calculateEthOrTokensToAdd(inputAmount, paymentTokenPoolSupply, poolBalance);
+            const virtualTokenPoolSupply = await this.marketGSN.virtualTokenPoolSupply(this.token.address);
+            const totalTokenPoolSupply = paymentTokenPoolSupply.add(virtualTokenPoolSupply);
+            const paymentTokenToAdd = calculateEthOrTokensToAdd(inputAmount, totalTokenPoolSupply, poolBalance);
 
             await expect(
                 this.marketGSN.addLiquidity(
