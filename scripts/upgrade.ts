@@ -2,8 +2,15 @@ import { ethers, defender, network } from "hardhat";
 import fs from "fs";
 import path from "path";
 
+const OZ_MANIFEST_FOLDER_NAME = {
+    matic: "unknown-137",
+    mainnet: "mainnet",
+    goerli: "goerli",
+    mumbai: "unknown-80001",
+};
+
 const getMarketAddress = (networkName: string): string => {
-    const deploymentPath = path.resolve(__dirname, "../.openzeppelin", `${networkName}.json`);
+    const deploymentPath = path.resolve(__dirname, "../.openzeppelin", `${OZ_MANIFEST_FOLDER_NAME[networkName]}.json`);
 
     const deployments = JSON.parse(fs.readFileSync(deploymentPath, "utf-8"));
 
@@ -24,7 +31,7 @@ async function main() {
 
     const proposal = await defender.proposeUpgrade(marketAddress, marketFactory);
 
-    console.log({ url: proposal.url });
+    console.log({ proposal });
 }
 
 main()

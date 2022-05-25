@@ -118,7 +118,7 @@ contract DankBankMarketGSN is
 
         uint256 paymentTokensRemoved = (burnAmount * (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken])) /
             lpSupply;
-        tokenPoolSupply[memeToken] -= paymentTokensRemoved;
+
         require(
             paymentTokensRemoved >= minPaymentTokens,
             "DankBankMarket: Payment tokens out is less than minimum tokens specified"
@@ -133,6 +133,7 @@ contract DankBankMarketGSN is
         // XXX: _burn must by attempted before transfers to prevent reentrancy
         IERC20Upgradeable(memeToken).safeTransfer(_msgSender(), memeTokensRemoved);
         require(paymentTokensRemoved < tokenPoolSupply[memeToken], "DankBankMarket: Not enough usdc");
+        tokenPoolSupply[memeToken] -= paymentTokensRemoved;
         IERC20Upgradeable(paymentToken).safeTransfer(_msgSender(), paymentTokensRemoved);
 
         emit LiquidityRemoved(_msgSender(), memeToken, memeTokensRemoved, paymentTokensRemoved, burnAmount);
