@@ -73,7 +73,9 @@ if (defenderApiKey && defenderSecret) {
 const etherscanKey = process.env.ETHERSCAN_API_KEY;
 const polyscanKey = process.env.POLYSCAN_API_KEY;
 const etherscanSettings = {
-    etherscan: { apiKey: { mainnet: etherscanKey, polygon: polyscanKey, polygonMumbai: polyscanKey } },
+    etherscan: {
+        apiKey: { mainnet: etherscanKey, goerli: etherscanKey, polygon: polyscanKey, polygonMumbai: polyscanKey },
+    },
 };
 
 function createNetworkConfig(network: keyof typeof chainIds): NetworkUserConfig {

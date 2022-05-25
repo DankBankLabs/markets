@@ -1,4 +1,4 @@
-import { ethers, defender, network, upgrades } from "hardhat";
+import { ethers, defender, network } from "hardhat";
 import fs from "fs";
 import path from "path";
 
@@ -28,8 +28,6 @@ async function main() {
     const marketAddress = getMarketAddress(network.name);
 
     const marketFactory = await ethers.getContractFactory("DankBankMarketGSN");
-
-    // await upgrades.forceImport(marketAddress, marketFactory, { kind: "transparent" });
 
     const proposal = await defender.proposeUpgrade(marketAddress, marketFactory);
 
