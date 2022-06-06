@@ -196,7 +196,8 @@ contract DankBankMarketGSN is
         */
 
         uint256 scaledMemeTokenPool = IERC20Upgradeable(memeToken).balanceOf(address(this)) * MULTIPLIER_SUB_ONE;
-        uint256 scaledPaymentTokenPool = getTotalTokenPoolSupply(memeToken) * FEE_MULTIPLIER;
+        uint256 scaledPaymentTokenPool = (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken]) *
+            FEE_MULTIPLIER;
 
         memeTokensOut =
             (scaledMemeTokenPool * paymentTokensAmount) /
@@ -221,7 +222,8 @@ contract DankBankMarketGSN is
         ethOut = ethPool - newEthPool;
         */
 
-        uint256 scaledPaymentTokenPool = getTotalTokenPoolSupply(memeToken) * MULTIPLIER_SUB_ONE;
+        uint256 scaledPaymentTokenPool = (virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken]) *
+            MULTIPLIER_SUB_ONE;
         uint256 scaledMemeTokenPool = IERC20Upgradeable(memeToken).balanceOf(address(this)) * FEE_MULTIPLIER;
 
         paymentTokensOut =
@@ -229,7 +231,7 @@ contract DankBankMarketGSN is
             (scaledMemeTokenPool + MULTIPLIER_SUB_ONE * memeTokensIn);
     }
 
-    function getTotalTokenPoolSupply(address memeToken) public view returns (uint256) {
+    function getTotalTokenPoolSupply(address memeToken) external view returns (uint256) {
         return virtualTokenPoolSupply[memeToken] + tokenPoolSupply[memeToken];
     }
 
